@@ -17,7 +17,7 @@
  #include <cstring>
  #include <vector>
  using namespace std;
-//COMPILAR g++ client.cpp -std=c++11  -pthread  -o c
+//COMPILAR: g++ client\ \(1\).cpp -std=c++11  -pthread -lncurses -o c -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
 
 /*Conectando  bd*/
  #include </usr/include/postgresql/libpq-fe.h>
