@@ -17,3 +17,5 @@ CREATE TABLE sinonimos
 INSERT INTO sinonimos (palabra, sinonimo) VALUES 
 ('Gato','{"Felino","Garabato", "Michi", "Felix"}'),
 ('Perro','{"Can","Canino", "Cachorro", "Sabueso"}'); 
+
+UPDATE palabras SET referencia = 'cuadrupedo' WHERE palabra = 'asno';

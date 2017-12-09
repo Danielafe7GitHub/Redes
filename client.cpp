@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+#include <mutex>
 
 #include "utils.h"
 
@@ -23,6 +24,7 @@ char dataBase[] = "redes";
 char user[] = "redes";
 char passwd[] = "redes";
 
+mutex mtx;
 
 struct sockaddr_in stSockAddr;
 int Res;
@@ -123,15 +125,16 @@ void writeS()
  }*/
 void readS()
 {
-    while(true)
-    {
-        string buffer;
-        char* buff;
-        buff=new char[3];
-        n = read(SocketFD,buff,3);
+    string buffer;
+    char* buff;
+    buff=new char[3];
 
+    while((n = read(SocketFD,buff,3)) > 0)
+    {
         string aux(buff);
+        string to_be_synonym;
         int tamanio = atoi(aux.c_str());
+
         cout<<aux<<" = "<<tamanio;
         cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
@@ -144,20 +147,28 @@ void readS()
 
         for(unsigned int i = 0; i < protocolos.size(); i++)
         {
-            vector<string>palabras = divide_mensaje(protocolos[i],'#');
+            vector<string> palabras = divide_mensaje(protocolos[i],'#');
 
             for (unsigned int i = 0; i < palabras.size(); ++i) {
-                cout << palabras[i] << "- pos:" << i << endl;
+                cout << "ITEMS:" << i << palabras[i] << " - " << endl;
             }
 
             string comando = palabras[0];
-            cout<<"comando "<<comando<<endl;
+            cout << "Command: "<< comando << endl;
+            //mtx.lock();
             if (comando == "N")
             {
+                if (palabras.size() > 2) {
+                    cout << "Too many arguments." << endl;
+                    break;
+                }
                 string palabra = palabras[1];
                 string referencia = " ";
+
+                to_be_synonym = palabra;
+
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"');";
                     result = PQexec(cnn, query.c_str());
                     if (!result)
                     {
@@ -171,10 +182,19 @@ void readS()
             }
             else if(comando == "L")
             {
+                if (palabras.size() > 4) {
+                    cout << "Too many arguments." << endl;
+                    break;
+                }
+
                 string palabra = palabras[1];
                 string referencia = palabras[2];
+
+                to_be_synonym = palabra;
+
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"');";
+                    cout << query << endl;
                     result = PQexec(cnn, query.c_str());
                     if (!result)
                     {
@@ -185,7 +205,33 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
+            } else if (comando == "A") {
+                string name = palabras[1];
+                string value = palabras[2];
+
+                if (name != "sinonimo")
+                {
+                    cout << "This method is not being recognized." << endl;
+                    break;
+                }
+
+                if (PQstatus(cnn) != CONNECTION_BAD) {
+                    string query = "UPDATE sinonimos SET sinonimo = '{"+palabras[2]+"}' WHERE palabra = '"+to_be_synonym+"';";
+                    cout << query << endl;
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                }
+                else
+                {
+                    cout<<"No se conecto a la BD"<<endl;
+                }
+            } else {
+                cout << "Option no valid." << endl;
             }
+            //mtx.unlock();
         }
         
     }
