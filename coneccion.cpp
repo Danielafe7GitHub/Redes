@@ -7,9 +7,9 @@ PGresult *result = NULL;
 
 char *host = "localhost";
 char *port = "5432";
-char *dataBase = "REDES";
+char *dataBase = "Redes";
 char *user = "postgres";
-char *passwd = "123456";
+char *passwd = "dani";
 
 int main(int argc, char * argv[])
 {
