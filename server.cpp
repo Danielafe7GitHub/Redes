@@ -145,6 +145,8 @@ int main(void)
 
     */
 
+    cout << "Starting Server" << endl;
+
     if(-1 == SocketFD)
     {
         perror("can not create socket");
@@ -171,8 +173,9 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-//Hace que el Servidor siempre escuche
+    //Hace que el Servidor siempre escuche
 
+    cout << "Waiting for connections ..." << endl;
     while(1)
     {
         int ConnectFD = accept(SocketFD, NULL, NULL);
@@ -181,7 +184,10 @@ int main(void)
             perror("error accept failed");
             close(SocketFD);
             exit(EXIT_FAILURE);
+        } else {
+            cout << "Accepted Connection! - Socket:" << ConnectFD << endl;
         }
+
         if(iD.size()==0)
             cliente =ConnectFD;
         iD.push_back(ConnectFD);

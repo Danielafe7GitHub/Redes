@@ -191,8 +191,10 @@ void readS()
 }
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    cout << "Client Services Started" << endl;
+    char* SERVER_IP = argv[1];
     /*  Conectando bd*/
     cnn = PQsetdbLogin(host, port, NULL, NULL, dataBase, user, passwd);
 
@@ -206,24 +208,25 @@ int main(void)
 
     stSockAddr.sin_family = AF_INET;
     stSockAddr.sin_port = htons(APP_PORT);
-    Res = inet_pton(AF_INET, "192.168.1.12", &stSockAddr.sin_addr);
+
+    Res = inet_pton(AF_INET, SERVER_IP, &stSockAddr.sin_addr);
 
     if (0 > Res)
     {
-        perror("error: first parameter is not a valid address family");
+        perror("ERROR: First parameter is not a valid address family");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
     else if (0 == Res)
     {
-        perror("char string (second parameter does not contain valid ipaddress");
+        perror("Char string (second parameter does not contain valid ipaddress");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
 
     if (-1 == connect(SocketFD, (const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)))
     {
-        perror("connect failed");
+        perror("Connection failed!");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
