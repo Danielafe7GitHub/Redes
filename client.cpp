@@ -34,7 +34,7 @@ string protocolos(string temporal)
 {
 
     int tam = 0;
-    ostringstream os,osi,to;
+    ostringstream os,osi;
     if(temporal[0] !='N' and temporal[0] !='A' and temporal[0] !='L' and temporal[0] !='Q' and temporal[0] !='P' and temporal[0] !='C' and temporal[0] !='S')
     {
         cout<<"Protocolo invalido"<<endl;
@@ -51,45 +51,21 @@ string protocolos(string temporal)
         //tam+=token.size();
     }
     osi/*<<tam*/<<os.str();
-    int TamTot = osi.str().size()+1;
-    if(TamTot<=9)
-        to  << '0'<< '0'<<TamTot << '#' << osi.str();
-    else if(TamTot<=99)
-        to  << '0'<<TamTot << '#' << osi.str();
-    else
-        to  <<TamTot << '#' << osi.str();
-
-    return to.str();
+    return osi.str();
     //cout<<"Este es el buffer: "<<osi.str()<<endl;
 }
-vector<string> divide_mensaje(string temporal)
+vector<string> divide_mensaje(string temporal, char separador)
 {
     string token;
     vector<string> paquetes;
     istringstream iss(temporal);
-    while(getline(iss,token,'-'))
-    {
-        if(token.size()>0)
-            paquetes.push_back(protocolos(token));
-    }
-    /* cout<<"Here we go"<<endl;
-     for(int i=0;i<palabras.size();i++)
-       cout<<i<<" "<<palabras[i]<<endl;*/
-    return paquetes;
-}
-vector<string> divide_mensaje_michi(string temporal)
-{
-    string token;
-    vector<string> paquetes;
-    istringstream iss(temporal);
-    while(getline(iss, token, '#'))
+    while(getline(iss, token,separador))
     {
         if(token.size()>0)
             paquetes.push_back(token);
     }
     return paquetes;
 }
-
 
 void writeS()
 {
@@ -100,16 +76,30 @@ void writeS()
         cout<<"Ingrese su consulta"<<endl;
         getline(cin,temporal);
 
-        vector<string> buffer=divide_mensaje(temporal);
+        vector<string> buffer=divide_mensaje(temporal,'-');
+        string bufferJunto="";
         for(unsigned int i=0; i < buffer.size(); i++)
         {
             if(buffer[i]!="ERROR")
             {
-                cout<<"Buffer: "<<buffer[i]<<endl;
-                n = write(SocketFD, buffer[i].c_str(),buffer[i].length());
+                //cout<<"Buffer: "<<buffer[i]<<endl;
+                if(i!=0) bufferJunto+="$";
+                bufferJunto+=protocolos(buffer[i]);
             }
         }
+        ostringstream to;
 
+        int TamTot = bufferJunto.size()+1;
+        if(TamTot<=9)
+            to  << '0'<< '0'<<TamTot << '#' << bufferJunto;
+        else if(TamTot<=99)
+            to  << '0'<<TamTot << '#' <<bufferJunto;
+        else
+            to  <<TamTot << '#' <<bufferJunto;
+
+        cout<<"Buffer Junto: "<<to.str()<<endl;
+        bufferJunto=to.str();
+        n = write(SocketFD, bufferJunto.c_str(),bufferJunto.length());
     }
 
 }
@@ -142,53 +132,61 @@ void readS()
 
         string aux(buff);
         int tamanio = atoi(aux.c_str());
+        cout<<aux<<" = "<<tamanio;
         cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
         n = read(SocketFD,buff,tamanio);
         string aux1(buff);
         cout <<"aux1 "<< aux1<<endl;
-        vector<string>palabras = divide_mensaje_michi(aux1);
-
-        for (unsigned int i = 0; i < palabras.size(); ++i) {
-            cout << palabras[i] << endl;
-        }
-
-        string comando = palabras[0];
-        cout<<"comando "<<comando<<endl;
-        if(comando == "N")
+        vector<string> separacion=divide_mensaje(aux1,'&');
+        string tabla=separacion[1];
+        vector<string> protocolos=divide_mensaje(separacion[0],'$');
+        for(int i=0;i< protocolos.size();i++)
         {
-            string palabra = palabras[1];
-            string referencia = " ";
-            if (PQstatus(cnn) != CONNECTION_BAD) {
-                string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
-                result = PQexec(cnn, query.c_str());
-                if (!result)
+            vector<string>palabras = divide_mensaje(protocolos[i],'#');
+
+            for (unsigned int i = 0; i < palabras.size(); ++i) {
+                cout << palabras[i] << endl;
+            }
+
+            string comando = palabras[0];
+            cout<<"comando "<<comando<<endl;
+            if(comando == "N")
+            {
+                string palabra = palabras[1];
+                string referencia = " ";
+                if (PQstatus(cnn) != CONNECTION_BAD) {
+                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                }
+                else
                 {
-                    cout << "Problem at executing Query." << endl;
+                    cout<<"No se conecto a la BD"<<endl;
                 }
             }
-            else
+            else if(comando == "L")
             {
-                cout<<"No se conecto a la BD"<<endl;
-            }
-        }
-        else if(comando == "L")
-        {
-            string palabra = palabras[1];
-            string referencia = palabras[2];
-            if (PQstatus(cnn) != CONNECTION_BAD) {
-                string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
-                result = PQexec(cnn, query.c_str());
-                if (!result)
+                string palabra = palabras[1];
+                string referencia = palabras[2];
+                if (PQstatus(cnn) != CONNECTION_BAD) {
+                    string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                }
+                else
                 {
-                    cout << "Problem at executing Query." << endl;
+                    cout<<"No se conecto a la BD"<<endl;
                 }
             }
-            else
-            {
-                cout<<"No se conecto a la BD"<<endl;
-            }
         }
+        
     }
 }
 
@@ -208,7 +206,7 @@ int main(void)
 
     stSockAddr.sin_family = AF_INET;
     stSockAddr.sin_port = htons(APP_PORT);
-    Res = inet_pton(AF_INET, "192.168.1.10", &stSockAddr.sin_addr);
+    Res = inet_pton(AF_INET, "192.168.1.12", &stSockAddr.sin_addr);
 
     if (0 > Res)
     {

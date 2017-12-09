@@ -103,7 +103,7 @@ void aceptClient(int ConnectFD) {
         slaveServer = seleccionarSlave(palabra);
 
 
-        protocolo0<<aux1<<'#'<<"Tabla_"<<tabla;
+        protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
         tamanio = protocolo0.str().size();
         ostringstream to;
 
