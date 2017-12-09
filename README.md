@@ -22,8 +22,8 @@ Librerias, programas y procedimientos necesarios para ejecutar el proyecto.
 
 > **Configuración Base de Datos:**
 
-> - CREATE DATABASE redes;
 > - sudo -u postgres psql
+> - CREATE DATABASE redes;
 > - CREATE USER redes WITH PASSWORD 'redes';
 > - ALTER ROLE redes SUPERUSER;
 > - \q
