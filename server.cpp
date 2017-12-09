@@ -83,23 +83,24 @@ vector<string> divide_mensaje_michi(string temporal)
 }
 
 void aceptClient(int ConnectFD) {
-    do {
+    char* buff;
+    buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
 
-        //keepAlive();
-        char* buff;
-        buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
-        n = read(ConnectFD, buff, 3);
-        if (n < 0) perror("ERROR reading from socket");
+    while(n = read(ConnectFD, buff, 3) > 0) {
         string aux(buff);
         int tamanio = atoi(aux.c_str());
         buff = new char[tamanio];
         n = read(ConnectFD, buff, tamanio);
+
+        if (n < 0)
+            perror("ERROR reading from socket");
+
         string aux1(buff);
-        vector<string>palabras=divide_mensaje_michi(aux1);
+        vector<string>palabras = divide_mensaje_michi(aux1);
         string palabra = palabras[1];
         ostringstream protocolo0;
         ostringstream protocolo;
-        slaveServer= seleccionarSlave(palabra);
+        slaveServer = seleccionarSlave(palabra);
 
 
         protocolo0<<aux1<<'#'<<"Tabla_"<<tabla;
@@ -122,16 +123,16 @@ void aceptClient(int ConnectFD) {
             if (n < 0) perror("ERROR writing to socket");
         }
 
-
-
-
         buffer.clear();
+    }
 
-    } while(buffer != "END");
-
-    shutdown(ConnectFD, SHUT_RDWR);
-
-    close(ConnectFD); //Cierra el Socket ( Socket : puente para que 2 computadoras se comuniquen remota o localmente) CIERRA la comunicación
+    if(n <= 0)		//recv timedout implies client no longer alive
+    {
+        cout << "Client unreachable. It will be disconnected!"<<endl;
+        shutdown(ConnectFD, SHUT_RDWR);
+        close(ConnectFD); //Cierra el Socket ( Socket : puente para que 2 computadoras se comuniquen remota o localmente) CIERRA la comunicación
+        pthread_exit(NULL);
+    }
 }
 
 
