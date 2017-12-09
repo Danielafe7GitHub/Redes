@@ -189,6 +189,65 @@ void readS()
                 cout<<"No se conecto a la BD"<<endl;
             }
         }
+        else if(comando == "Q")
+        {
+            string palabra = palabras[1]; // gato
+            string referencia = palabras[2]; 
+            string profundidad = palabras[3]; // 1 ,2 3 no caso si no pone
+            string query,dato_i;
+
+            if (PQstatus(cnn) != CONNECTION_BAD) {
+                if (profundidad == "1")
+                {
+                    query= "SELECT referencia FROM palabras  WHERE palabra1='"+palabra+"'LIMIT 2";
+                }
+                else if (profundidad == "2")
+                {
+                    string num = "SELECT palabra FROM palabras  WHERE palabra='"+palabra+"'";
+                    int iteraciones = atoi(num.c_str()); // de string to int 
+
+                    for(int i=0;i<iteraciones;i++)
+                    {
+                        _i = to_string(i+1);
+                        dato = "SELECT referencia FROM palabras  WHERE palabra1='"+dato+"' LIMIT 2";
+                        query= "SELECT referencia FROM palabras  WHERE palabra1='"+dato+"' LIMIT 2";
+                    }
+                }
+
+                result = PQexec(cnn, query.c_str());
+                if (!result)
+                {
+                    cout << "Problem at executing Query." << endl;
+                }
+                else
+                {
+                    int tuplas = PQntuples(result);
+                    int campos = PQnfields(result);
+                    cout << "No. Filas:" << tuplas << endl;
+                    cout << "No. Campos:" << campos << endl;
+        
+                    cout << "Los nombres de los campos son:" << endl;
+        
+                    for (int i=0; i<campos; i++) {
+                        cout << PQfname(result,i) << " | ";
+                    }
+        
+                    cout << endl << "Contenido de la tabla" << endl;
+        
+                    for (int i=0; i<tuplas; i++) {
+                        for (int j=0; j<campos; j++) {
+                            cout << PQgetvalue(result,i,j) << " | ";
+                        }
+                        cout << endl;
+                    }
+                }
+        
+            }
+            else
+            {
+                cout<<"No se conecto a la BD"<<endl;
+            }
+        }
         // cout<<"Se ha finalizado la insercion "<<endl;
     }
 }
