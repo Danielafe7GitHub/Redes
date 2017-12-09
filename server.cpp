@@ -30,93 +30,52 @@ socklen_t optlen = sizeof(optval);
 string buffer;
 int n;
 int cliente;
-int slaveServer;
+int slaveServer; /*Te dice a que servidor Esclavo ir*/
+string tabla; /*Identificado el esclavo, elegimos una de sus tablas*/
 vector<int> iD; /*Vector que recopila id de los clientes conectados*/
 
 
-
-void keepAlive()
-{
-    for(int i=0;i<iD.size();i++)
-    {
-      if(0 > iD[i]) {
-        perror("Socket Fuera de Servicio");
-        close(SocketFD);
-        exit(EXIT_FAILURE);
-        //int a; cin>>a;
-      }
-      else
-      {
-        cout <<iD[i]<<"  Keep Alive "<<endl;
-      }
-    }
-}
-
-unsigned long hashTexto(unsigned char *str)
-{
-  
-  unsigned long hash = 5381;
-  int c;
-  while (c = *str++)
-      hash = ((hash << 5) + hash) + c;  /*hash * 33 + c;*/
-
-
-  return hash%1000;
-}
-
+//Daniel = 5 y  13  Sergio = 6 y 12 Karelia = 7 y 11 y 13 Daniela = 8 y 12 
 int seleccionarSlave(string palabra)
 {
-    unsigned long H = hashTexto((unsigned char *) palabra.c_str());
-    if(H<100)
+    tabla = palabra[0];    
+    if (palabra[0] >= 'a' and palabra[0]<='c')
     {
-        slaveServer = 5; 
-        return 0;
-    }
-    if(H<200)
-    {
-        slaveServer = 5; 
-        return 1;
-    }
-    if(H<300)
-    {
-        slaveServer = 6; 
-        return 2;
-    }
-    if(H<400)
-    {
-        slaveServer = 6; 
-        return 3;
-    }
-    if(H<500)
-    {
-        slaveServer = 6; 
-        return 4;
-    }
-    if(H<600)
-    {
-        slaveServer = 7; 
         return 5;
     }
-    if(H<700)
+    else if (palabra[0] >= 'd' and palabra[0]<='f')
     {
-        slaveServer = 7; 
         return 6;
     }
-    if(H<800)
+    else if (palabra[0] >= 'g' and palabra[0]<='i')
     {
-        slaveServer = 7; 
         return 7;
     }
-    if(H<900)
+    else if (palabra[0] >= 'j' and palabra[0]<='l')
     {
-        slaveServer = 8; 
         return 8;
     }
-    if(H<1000)
+    else if (palabra[0] >= 'm' and palabra[0]<='o')
     {
-        slaveServer = 8; 
         return 9;
     }
+    else if (palabra[0] >= 'p' and palabra[0]<='r')
+    {
+        return 10;
+    }
+    else if (palabra[0] >= 's' and palabra[0]<='u')
+    {
+        return 11;
+    }
+    else if (palabra[0] >= 'v' and palabra[0]<='x')
+    {
+        return 12;
+    }
+    else if (palabra[0] >= 'y' and palabra[0]<='z')
+    {
+        return 13;
+    }
+
 }
   vector<string> divide_mensaje_michi(string temporal)
  {
@@ -146,13 +105,30 @@ void aceptClient(int ConnectFD) {
     string aux1(buff);
     vector<string>palabras=divide_mensaje_michi(aux1);
     string palabra = palabras[1];
+    ostringstream protocolo0;
     ostringstream protocolo;
-    int slave = seleccionarSlave(palabra);
-    protocolo<<aux.c_str()<<aux1<<'#'<<"grafo_link"<<slave;
+    slaveServer= seleccionarSlave(palabra);
+
+    
+    protocolo0<<aux1<<'#'<<"Tabla_"<<tabla;
+    tamanio=protocolo0.str().size();
+    ostringstream to;
+    
+     if(tamanio<=9)
+       to  << '0'<< '0'<<tamanio;
+     else if(tamanio<=99)
+       to  << '0'<<tamanio;
+     else
+       to  <<tamanio;
+    protocolo<<to.str()<<protocolo0.str();
     string protocolo1=protocolo.str();
-    cout<<"Enviando a Slave, la siguiente Petición: "<<slaveServer<<" El msg:  "<<protocolo1<<endl;          
-    n = write(slaveServer,protocolo1.c_str(),protocolo1.length()); //Poner al Protocolo
-    if (n < 0) perror("ERROR writing to socket"); 
+    cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;          
+    for(int i=1;i<iD.size();i++)
+    {
+        cout<<"Enviando a Esclavo: "<<iD[i]<<" El msg:  "<<buffer<<endl;          
+        n = write(slaveServer,protocolo1.c_str(),protocolo1.size());
+        if (n < 0) perror("ERROR writing to socket");        
+    }
 
     
    

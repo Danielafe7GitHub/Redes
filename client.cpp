@@ -17,7 +17,7 @@
  #include <cstring>
  #include <vector>
  using namespace std;
-//COMPILAR: g++ client\ \(1\).cpp -std=c++11  -pthread -lncurses -o c -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
+//COMPILAR: g++ client.cpp -std=c++11  -pthread  -o c -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
 
 /*Conectando  bd*/
  #include </usr/include/postgresql/libpq-fe.h>
@@ -146,15 +146,19 @@ string protocolos(string temporal)
     {
       string buffer;
       char* buff;
-      buff=new char[1];
-      n = read(SocketFD,buff,1);
+      buff=new char[3];
+      n = read(SocketFD,buff,3);
+
       string aux(buff);
-      int tamanio = atoi(aux.c_str());        
+      int tamanio = atoi(aux.c_str());  
+      cout <<"tam"<<tamanio<<endl;      
       buff = new char[tamanio];
       n = read(SocketFD,buff,tamanio);
       string aux1(buff);
+      cout <<"aux1 "<< aux1<<endl;
       vector<string>palabras=divide_mensaje_michi(aux1);
       string comando = palabras[0];
+      cout<<"comando "<<comando<<endl;
       if(comando == "N")
       {
           string palabra = palabras[1];
@@ -163,14 +167,20 @@ string protocolos(string temporal)
             string instruccion= "INSERT INTO'"+tabla+"' (palabra1) VALUES ('"+palabra+"')";
             result = PQexec(cnn,instruccion.c_str());
           }
+           else
+          {
+            cout<<"No se conecto a la BD"<<endl;
+          }
 
       }
+     // cout<<"Se ha finalizado la insercion "<<endl;
 
 
 
 
     }
       
+ 
  }
 
 
@@ -190,7 +200,7 @@ string protocolos(string temporal)
 
    stSockAddr.sin_family = AF_INET;
    stSockAddr.sin_port = htons(2102);
-   Res = inet_pton(AF_INET,  "192.168.1.7", &stSockAddr.sin_addr);
+   Res = inet_pton(AF_INET,  "127.0.1.1", &stSockAddr.sin_addr);
 
    if (0 > Res)
    {
