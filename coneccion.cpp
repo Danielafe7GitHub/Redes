@@ -7,9 +7,9 @@ PGresult *result = NULL;
 
 char *host = "localhost";
 char *port = "5432";
-char *dataBase = "Redes";
-char *user = "postgres";
-char *passwd = "dani";
+char *dataBase = "redes";
+char *user = "redes";
+char *passwd = "redes";
 
 int main(int argc, char * argv[])
 {
@@ -20,7 +20,7 @@ int main(int argc, char * argv[])
 
     if (PQstatus(cnn) != CONNECTION_BAD) {
         cout << "Estamos conectados a PostgreSQL!" << endl;
-        string instruccion= "SELECT * FROM grafo_link0  WHERE palabra1='"+dato+"'";
+        string instruccion= "SELECT * FROM palabras  WHERE palabra1='"+dato+"'";
         result = PQexec(cnn,instruccion.c_str());
 
         if (result != NULL) {
