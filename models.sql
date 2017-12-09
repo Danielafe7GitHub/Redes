@@ -9,6 +9,7 @@ INSERT INTO palabras (palabra, referencia) VALUES ('gato', 'malo');
 
 CREATE TABLE sinonimos
 (
+    id    serial primary key,
     palabra            text,
     sinonimo        text[]
 );
