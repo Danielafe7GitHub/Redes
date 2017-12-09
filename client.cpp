@@ -141,17 +141,18 @@ void readS()
         vector<string> separacion=divide_mensaje(aux1,'&');
         string tabla=separacion[1];
         vector<string> protocolos=divide_mensaje(separacion[0],'$');
-        for(int i=0;i< protocolos.size();i++)
+
+        for(unsigned int i = 0; i < protocolos.size(); i++)
         {
             vector<string>palabras = divide_mensaje(protocolos[i],'#');
 
             for (unsigned int i = 0; i < palabras.size(); ++i) {
-                cout << palabras[i] << endl;
+                cout << palabras[i] << "- pos:" << i << endl;
             }
 
             string comando = palabras[0];
             cout<<"comando "<<comando<<endl;
-            if(comando == "N")
+            if (comando == "N")
             {
                 string palabra = palabras[1];
                 string referencia = " ";

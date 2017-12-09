@@ -126,7 +126,7 @@ void aceptClient(int ConnectFD) {
         buffer.clear();
     }
 
-    if(n <= 0)		//recv timedout implies client no longer alive
+    if (n <= 0)		//recv timedout implies client no longer alive
     {
         cout << "Client unreachable. It will be disconnected!"<<endl;
         shutdown(ConnectFD, SHUT_RDWR);
@@ -136,7 +136,7 @@ void aceptClient(int ConnectFD) {
 }
 
 
-int main(void)
+int main()
 {
     /*
     This function creates a socket and specifies communication style style,
@@ -188,12 +188,12 @@ int main(void)
             cout << "Accepted Connection! - Socket:" << ConnectFD << endl;
         }
 
-        if(iD.size()==0)
-            cliente =ConnectFD;
+        if (iD.size() == 0)
+            cliente = ConnectFD;
         iD.push_back(ConnectFD);
 
         char id[1];
-        sprintf(id,"%d",ConnectFD); //De entero a char
+        sprintf(id, "%d", ConnectFD); //De entero a char
         write(ConnectFD,id,1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
 
         //std::thread (keepAlive).detach();
