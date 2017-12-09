@@ -19,3 +19,5 @@ INSERT INTO sinonimos (palabra, sinonimo) VALUES
 ('Perro','{"Can","Canino", "Cachorro", "Sabueso"}'); 
 
 UPDATE palabras SET referencia = 'cuadrupedo' WHERE palabra = 'asno';
+
+COPY tu_tabla from 'ruta_completa_del_archivo' USING DELIMITERS ' '
