@@ -17,3 +17,7 @@ CREATE TABLE sinonimos
 INSERT INTO sinonimos (palabra, sinonimo) VALUES 
 ('Gato','{"Felino","Garabato", "Michi", "Felix"}'),
 ('Perro','{"Can","Canino", "Cachorro", "Sabueso"}'); 
+
+
+/*Para ingresar un txt como una tabla*/
+COPY tu_tabla from 'ruta_completa_del_archivo' USING DELIMITERS ' '
