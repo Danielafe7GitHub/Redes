@@ -11,7 +11,7 @@ CREATE TABLE sinonimos
 (
     id    serial primary key,
     palabra            text,
-    sinonimo        text[]
+    sinonimos        text[]
 );
 
 INSERT INTO sinonimos (palabra, sinonimo) VALUES 
