@@ -17,11 +17,11 @@
 PGconn *cnn = NULL;
 PGresult *result = NULL;
 
-char *host = "localhost";
-char *port = "5432";
-char *dataBase = "redes";
-char *user = "redes";
-char *passwd = "redes";
+char host[] = "localhost";
+char port[] = "5432";
+char dataBase[] = "redes";
+char user[] = "redes";
+char passwd[] = "redes";
 
 
 struct sockaddr_in stSockAddr;
@@ -149,7 +149,7 @@ void readS()
         cout <<"aux1 "<< aux1<<endl;
         vector<string>palabras = divide_mensaje_michi(aux1);
 
-        for (int i = 0; i < palabras.size(); ++i) {
+        for (unsigned int i = 0; i < palabras.size(); ++i) {
             cout << palabras[i] << endl;
         }
 
@@ -159,7 +159,7 @@ void readS()
         {
             string palabra = palabras[1];
             string referencia = " ";
-            /*if (PQstatus(cnn) != CONNECTION_BAD) {
+            if (PQstatus(cnn) != CONNECTION_BAD) {
                 string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
                 result = PQexec(cnn, query.c_str());
                 if (!result)
@@ -170,7 +170,7 @@ void readS()
             else
             {
                 cout<<"No se conecto a la BD"<<endl;
-            }*/
+            }
         }
         else if(comando == "L")
         {
@@ -189,7 +189,6 @@ void readS()
                 cout<<"No se conecto a la BD"<<endl;
             }
         }
-        // cout<<"Se ha finalizado la insercion "<<endl;
     }
 }
 
