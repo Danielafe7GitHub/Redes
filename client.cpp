@@ -82,7 +82,7 @@ vector<string> divide_mensaje_michi(string temporal)
     string token;
     vector<string> paquetes;
     istringstream iss(temporal);
-    while(getline(iss,token,'#'))
+    while(getline(iss, token, '#'))
     {
         if(token.size()>0)
             paquetes.push_back(token);
@@ -147,16 +147,42 @@ void readS()
         n = read(SocketFD,buff,tamanio);
         string aux1(buff);
         cout <<"aux1 "<< aux1<<endl;
-        vector<string>palabras=divide_mensaje_michi(aux1);
+        vector<string>palabras = divide_mensaje_michi(aux1);
+
+        for (int i = 0; i < palabras.size(); ++i) {
+            cout << palabras[i] << endl;
+        }
+
         string comando = palabras[0];
         cout<<"comando "<<comando<<endl;
         if(comando == "N")
         {
             string palabra = palabras[1];
-            string tabla = palabras[2];
+            string referencia = " ";
+            /*if (PQstatus(cnn) != CONNECTION_BAD) {
+                string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                result = PQexec(cnn, query.c_str());
+                if (!result)
+                {
+                    cout << "Problem at executing Query." << endl;
+                }
+            }
+            else
+            {
+                cout<<"No se conecto a la BD"<<endl;
+            }*/
+        }
+        else if(comando == "L")
+        {
+            string palabra = palabras[1];
+            string referencia = palabras[2];
             if (PQstatus(cnn) != CONNECTION_BAD) {
-                string instruccion= "INSERT INTO'"+tabla+"' (palabra1) VALUES ('"+palabra+"')";
-                result = PQexec(cnn,instruccion.c_str());
+                string query = "INSERT INTO palabras (palabra, referencia) VALUES ('"+palabra+"', '"+referencia+"')";
+                result = PQexec(cnn, query.c_str());
+                if (!result)
+                {
+                    cout << "Problem at executing Query." << endl;
+                }
             }
             else
             {
@@ -182,7 +208,7 @@ int main(void)
     memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
 
     stSockAddr.sin_family = AF_INET;
-    stSockAddr.sin_port = htons(2102);
+    stSockAddr.sin_port = htons(APP_PORT);
     Res = inet_pton(AF_INET, "192.168.1.10", &stSockAddr.sin_addr);
 
     if (0 > Res)
@@ -213,7 +239,7 @@ int main(void)
     t1.join();
     t2.join();
 
-
+    PQfinish(cnn);
     shutdown(SocketFD, SHUT_RDWR);
     close(SocketFD);
     return 0;

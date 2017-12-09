@@ -153,7 +153,7 @@ int main(void)
     memset(&stSockAddr, 0, sizeof(struct sockaddr_in)); //Separa espcio en memoria para la Estructura
 
     stSockAddr.sin_family = AF_INET;      //Protocolo para la conexión
-    stSockAddr.sin_port = htons(2102);      //Puerto para la conexión
+    stSockAddr.sin_port = htons(APP_PORT);      //Puerto para la conexión
     stSockAddr.sin_addr.s_addr = INADDR_ANY;
 
     if(-1 == bind(SocketFD,(const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)))

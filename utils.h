@@ -3,5 +3,6 @@
 #include <vector>
 #include <cstring>
 
+#define APP_PORT 3123
 
 using namespace std;
