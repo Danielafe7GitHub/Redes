@@ -158,8 +158,8 @@ void readS()
             //mtx.lock();
             if (comando == "N")
             {
-                if (palabras.size() > 2) {
-                    cout << "Too many arguments." << endl;
+                if (palabras.size() > 2 || palabras.size() < 1) {
+                    cout << "Invalid number of arguments." << endl;
                     break;
                 }
                 string palabra = palabras[1];
@@ -182,8 +182,8 @@ void readS()
             }
             else if(comando == "L")
             {
-                if (palabras.size() > 4) {
-                    cout << "Too many arguments." << endl;
+                if (palabras.size() > 4 || palabras.size()< 3) {
+                    cout << "Invalid number of arguments." << endl;
                     break;
                 }
 
@@ -216,7 +216,25 @@ void readS()
                 }
 
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    string query = "UPDATE sinonimos SET sinonimo = '{"+palabras[2]+"}' WHERE palabra = '"+to_be_synonym+"';";
+                    string query =  "SELECT COUNT(palabra) FROM sinonimos  WHERE palabra='"+to_be_synonym+"'";
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                    PQnfields(result);
+                
+                    if (PQgetvalue(result,0,0)[0] == '0')
+                    {
+                        string query = "INSERT INTO sinonimos (palabra) VALUES ('"+to_be_synonym+"');";
+                        cout << query << endl;
+                        result = PQexec(cnn, query.c_str());
+                        if (!result)
+                        {
+                            cout << "Problem at executing Query." << endl;
+                        }
+                    }
+                    query = "UPDATE sinonimos SET sinonimo = '{"+value+"}' WHERE palabra = '"+to_be_synonym+"';";
                     cout << query << endl;
                     result = PQexec(cnn, query.c_str());
                     if (!result)
@@ -228,7 +246,26 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
-            } else {
+            }
+            else if(comando == "Q")
+            {
+                string dato = palabras[1]; 
+                string profundidad = palabras[2]; 
+                string referencia;
+    
+                if (PQstatus(cnn) != CONNECTION_BAD) {
+                    if (profundidad == "1")
+                    {
+                        referencia = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
+                        cout<<"El query es: "<<referencia<<endl;
+                    }
+                }  
+                else
+                {
+                    cout<<"No se conecto a la BD"<<endl;
+                }                 
+            }
+            else {
                 cout << "Option no valid." << endl;
             }
             //mtx.unlock();
