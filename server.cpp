@@ -7,24 +7,49 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <chrono>
 #include <string>
 #include <sstream>
+#include <chrono>
+#include <algorithm>
 
 #include "utils.h"
-
-
 
 struct sockaddr_in stSockAddr;
 int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); //Se trabaja con protocolo TCP Handshaking
 int optval;
 socklen_t optlen = sizeof(optval);
 string buffer;
+
 int n;
 int cliente;
 int slaveServer; /*Te dice a que servidor Esclavo ir*/
 string tabla; /*Identificado el esclavo, elegimos una de sus tablas*/
-vector<int> iD; /*Vector que recopila id de los clientes conectados*/
+vector<int> clients_id; /*Vector que recopila id de los clientes conectados*/
+
+mutex mtx;
+
+void keepAlive()
+{
+    // Engaña al interprete para que no de warnings por bucle infinito
+    bool fake_bool = true;
+    cout << "KeepAlive - Starting service ...\n";
+    do {
+        cout << "enter\n";
+        usleep(10000000);
+        if (not clients_id.empty()) {
+            cout << "double enter\n";
+            // Lo mismo que un for pero para pros
+            for (auto i : clients_id) {
+                cout << "Verify connection with [" << i << "] ..." << endl;
+                if ((n = write(slaveServer, ACK_MESSAGE.c_str(), 3)) <= 0) {
+                    perror("ERROR sending AKC to client.");
+                }
+            }
+        } else {
+            cout << "There is no Clients connected.\n";
+        }
+    } while (fake_bool);
+}
 
 
 //Daniel = 5 y  13  Sergio = 6 y 12 Karelia = 7 y 11 y 13 Daniela = 8 y 12 
@@ -88,6 +113,12 @@ void aceptClient(int ConnectFD) {
 
     while(n = read(ConnectFD, buff, 3) > 0) {
         string aux(buff);
+        cout << "XXX: " << aux << endl;
+
+        if (aux == ACK_MESSAGE) {
+            continue;
+        }
+
         int tamanio = atoi(aux.c_str());
         buff = new char[tamanio];
         n = read(ConnectFD, buff, tamanio);
@@ -117,10 +148,10 @@ void aceptClient(int ConnectFD) {
         protocolo<<to.str()<<protocolo0.str();
         string protocolo1=protocolo.str();
         cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;
-        for(int i=1;i<iD.size();i++)
+        for(int i=1;i<clients_id.size();i++)
         {
-            cout<<"Enviando a Esclavo: "<<iD[i]<<" El msg:  "<<buffer<<endl;
-            n = write(slaveServer,protocolo1.c_str(),protocolo1.size());
+            cout<<"Enviando a Esclavo: "<<clients_id[i]<<" El msg:  "<<buffer<<endl;
+            n = write(slaveServer, protocolo1.c_str(), protocolo1.size());
             if (n < 0) perror("ERROR writing to socket");
         }
 
@@ -130,6 +161,7 @@ void aceptClient(int ConnectFD) {
     if (n <= 0)		//recv timedout implies client no longer alive
     {
         cout << "Client unreachable. It will be disconnected!"<<endl;
+        clients_id.erase(remove(clients_id.begin(), clients_id.end(), ConnectFD), clients_id.end());
         shutdown(ConnectFD, SHUT_RDWR);
         close(ConnectFD); //Cierra el Socket ( Socket : puente para que 2 computadoras se comuniquen remota o localmente) CIERRA la comunicación
         pthread_exit(NULL);
@@ -176,8 +208,11 @@ int main()
 
     //Hace que el Servidor siempre escuche
 
+
+    thread (keepAlive).detach();
     cout << "Waiting for connections ..." << endl;
-    while(1)
+
+    while(true)
     {
         int ConnectFD = accept(SocketFD, NULL, NULL);
 
@@ -189,15 +224,14 @@ int main()
             cout << "Accepted Connection! - Socket:" << ConnectFD << endl;
         }
 
-        if (iD.size() == 0)
+        if (clients_id.size() == 0)
             cliente = ConnectFD;
-        iD.push_back(ConnectFD);
+        clients_id.push_back(ConnectFD);
 
         char id[1];
         sprintf(id, "%d", ConnectFD); //De entero a char
-        write(ConnectFD,id,1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
+        write(ConnectFD, id, 1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
 
-        //std::thread (keepAlive).detach();
-        std::thread (aceptClient, ConnectFD).detach();
+        thread (aceptClient, ConnectFD).detach();
     }
 }

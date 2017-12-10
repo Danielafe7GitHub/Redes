@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-#include <mutex>
 
 #include "utils.h"
 
@@ -24,17 +23,13 @@ char dataBase[] = "redes";
 char user[] = "redes";
 char passwd[] = "redes";
 
-
 mutex mtx;
-
-
 
 struct sockaddr_in stSockAddr;
 int Res;
 int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 int n;
 char id_usuario[1];
-
 
 
 vector<string> resultado_palabras;
@@ -154,40 +149,31 @@ void writeS()
     }
 
 }
-/*
- void writeS()
- {   
-     cout<<"Mi id es: "<<id_usuario[0]<<endl;
-     while(true)
-     {
-       string buffer;
-       string letra;
-       cin>>letra;
 
-       buffer="";
-       buffer[0] = id_usuario[0];
-       buffer[0] = letra[0];
-       n = write(SocketFD, buffer.c_str(),1);
-       
-     }
-
- }*/
 void readS()
 {
     string buffer;
     char* buff;
     buff=new char[3];
 
-    while((n = read(SocketFD,buff,3)) > 0)
+    while((n = read(SocketFD, buff, 3)) > 0)
     {
         string aux(buff);
+
+        if (aux == ACK_MESSAGE) {
+            if ((n = write(SocketFD, ACK_MESSAGE.c_str(), 3)) <= 0) {
+                perror("Error at send ACK to server.");
+            }
+            continue;
+        }
+
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
 
         cout<<aux<<" = "<<tamanio<<endl;
         cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
-        n = read(SocketFD,buff,tamanio);
+        n = read(SocketFD, buff, tamanio);
         string aux1(buff);
         cout <<"aux1 "<< aux1<<endl;
         vector<string> separacion=divide_mensaje(aux1,'&');
