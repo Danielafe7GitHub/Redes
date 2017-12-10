@@ -1,6 +1,5 @@
 CREATE TABLE palabras
 (
-    id    serial primary key,
     palabra        text,
     referencia        text
 );
@@ -18,6 +17,6 @@ INSERT INTO sinonimos (palabra, sinonimo) VALUES
 ('Gato','{"Felino","Garabato", "Michi", "Felix"}'),
 ('Perro','{"Can","Canino", "Cachorro", "Sabueso"}'); 
 
-UPDATE palabras SET referencia = 'cuadrupedo' WHERE palabra = 'asno';
 
-COPY tu_tabla from 'ruta_completa_del_archivo' USING DELIMITERS ' '
+/*Para ingresar un txt como una tabla*/
+COPY palabras from '/home/sergio/Redes/Trabajo Final/Data/Data/yZ.txt' USING DELIMITERS ' '
