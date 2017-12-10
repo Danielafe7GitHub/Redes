@@ -4,3 +4,4 @@ client
 CMakeLists.txt
 cmake-build-debug/
 connPgSQL
+addons/e
