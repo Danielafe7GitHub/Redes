@@ -36,7 +36,7 @@ vector<string> resultado_palabras;
 string consulta(string palabra)
 {
     string resultado="";
-    string instruccion= "SELECT referencia FROM palabras  WHERE palabra='"+palabra+"'";
+    string instruccion= "SELECT referencia FROM palabras  WHERE palabra='"+palabra+"' LIMIT "+LIMIT_QUERY;
     result = PQexec(cnn,instruccion.c_str());
     int tuplas = PQntuples(result);
     int campos = PQnfields(result);
@@ -277,17 +277,10 @@ void readS()
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad.size())
                     {
-                        cout<<"El RESULTADO es: "<<consulta_profundidad(dato,atoi(profundidad.c_str()))<<endl;
-                        cout<<"that's will be all"<<endl;
-                        // query = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
-                        // cout << query << endl;
-                        // result = PQexec(cnn, query.c_str());
-                        // if (!result)
-                        // {
-                        //     cout << "Problem at executing Query." << endl;
-                        // }
-                        // PQnfields(result);
-                        // cout<<"El resultado es: "<<PQgetvalue(result,0,0)<<endl;
+                        string resultado =
+                                format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
+                        cout << "El RESULTADO es: " << resultado << endl;
+                        write(SocketFD, resultado.c_str(), resultado.size());
                     }
                     else
                     {
