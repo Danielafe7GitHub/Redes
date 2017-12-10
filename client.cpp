@@ -40,7 +40,6 @@ char id_usuario[1];
 vector<string> resultado_palabras;
 string consulta(string palabra)
 {
-    cout<<"HELLO WORD!"<<endl;
     string resultado="";
     string instruccion= "SELECT referencia FROM palabras  WHERE palabra='"+palabra+"'";
     result = PQexec(cnn,instruccion.c_str());
@@ -61,8 +60,6 @@ string consulta(string palabra)
 }
 string consulta_profundidad(string palabra,int profundidad)
 {
-    cout<<"HELLO WORD!2"<<endl;
-
     string res="";
     int cont=0;
     unsigned int tam=resultado_palabras.size();
@@ -77,6 +74,7 @@ string consulta_profundidad(string palabra,int profundidad)
         if(cont==profundidad)break;
         res+=consulta(resultado_palabras[i]);
     }
+    resultado_palabras.clear();
     return res;
 
 }
@@ -292,7 +290,8 @@ void readS()
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad.size())
                     {
-                        cout<<"El resultado es: "<<consulta_profundidad(dato,atoi(profundidad.c_str()));
+                        cout<<"El RESULTADO es: "<<consulta_profundidad(dato,atoi(profundidad.c_str()))<<endl;
+                        cout<<"that's will be all"<<endl;
                         // query = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
                         // cout << query << endl;
                         // result = PQexec(cnn, query.c_str());
