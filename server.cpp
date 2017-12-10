@@ -28,6 +28,13 @@ vector<int> clients_id; /*Vector que recopila id de los clientes conectados*/
 
 mutex mtx;
 
+string arToStr(char* a,int size)
+{
+    string res;
+    for(int i=0;i<size;i++)res+=a[i];
+    return res;
+}
+
 void keepAlive()
 {
     // Engaña al interprete para que no de warnings por bucle infinito
@@ -41,8 +48,21 @@ void keepAlive()
             // Lo mismo que un for pero para pros
             for (auto i : clients_id) {
                 cout << "Verify connection with [" << i << "] ..." << endl;
-                if ((n = write(slaveServer, ACK_MESSAGE.c_str(), 3)) <= 0) {
+                if (write(i, ACK_MESSAGE.c_str(), 3) <= 0) {
                     perror("ERROR sending AKC to client.");
+                }
+                cout << "1" << endl;
+                char* buff;
+                buff = new char[3];
+                if (read(i, buff, 3) <= 0) {
+                    cout << "2" << endl;
+                    clients_id.erase(remove(clients_id.begin(), clients_id.end(), i), clients_id.end());
+                    shutdown(i, SHUT_RDWR);
+                    close(i);
+                    perror("ERROR getting AKC from client.");
+                } else {
+                    cout << "3" << endl;
+                    cout << "respondió papu" << endl;
                 }
             }
         } else {
@@ -107,25 +127,12 @@ vector<string> divide_mensaje_michi(string temporal)
     return paquetes;
 }
 
-string arToStr(char* a,int size)
-{
-    string res;
-    for(int i=0;i<size;i++)res+=a[i];
-    return res;
-}
-
 void aceptClient(int ConnectFD) {
     char* buff;
     buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
 
     while(n = read(ConnectFD, buff, 3) > 0) {
         string aux = arToStr(buff, 3);
-        cout << "XXX: " << aux << endl;
-
-        if (aux == ACK_MESSAGE) {
-            continue;
-        }
-
         int tamanio = atoi(aux.c_str());
         buff = new char[tamanio];
         n = read(ConnectFD, buff, tamanio);
@@ -217,7 +224,7 @@ int main()
     //Hace que el Servidor siempre escuche
 
 
-    thread (keepAlive).detach();
+//    thread (keepAlive).detach();
     cout << "Waiting for connections ..." << endl;
 
     while(true)

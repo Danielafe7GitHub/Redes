@@ -5,7 +5,7 @@
 #include <mutex>
 
 // ENVIRONMENT CONFIGURATIONS
-#define APP_PORT 3122
+#define APP_PORT 3124
 
 using namespace std;
 

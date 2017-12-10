@@ -160,12 +160,13 @@ void readS()
     {
         string aux(buff);
 
-        if (aux == ACK_MESSAGE) {
-            if ((n = write(SocketFD, ACK_MESSAGE.c_str(), 3)) <= 0) {
-                perror("Error at send ACK to server.");
-            }
-            continue;
-        }
+//        if (aux == ACK_MESSAGE) {
+//            cout << "sending to server" << "'"<< ACK_MESSAGE.c_str() << "'"<< endl;
+//            if ((n = write(SocketFD, ACK_MESSAGE.c_str(), 3)) <= 0) {
+//                perror("Error at send ACK to server.");
+//            }
+//            continue;
+//        }
 
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
