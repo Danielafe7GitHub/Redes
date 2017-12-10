@@ -40,6 +40,7 @@ char id_usuario[1];
 vector<string> resultado_palabras;
 string consulta(string palabra)
 {
+    cout<<"HELLO WORD!"<<endl;
     string resultado="";
     string instruccion= "SELECT referencia FROM palabras  WHERE palabra='"+palabra+"'";
     result = PQexec(cnn,instruccion.c_str());
@@ -60,6 +61,7 @@ string consulta(string palabra)
 }
 string consulta_profundidad(string palabra,int profundidad)
 {
+    cout<<"HELLO WORD!2"<<endl;
 
     string res="";
     int cont=0;
@@ -281,23 +283,25 @@ void readS()
             }
             else if(comando == "Q")
             {
+                cout<<"SUPER ENTRE A ESTE SITIO "<<endl;
                 string dato = palabras[1]; 
                 string profundidad = palabras[2]; 
                 cout<<"La profundidad es: "<<profundidad<<endl;
                 string query;
     
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    if (profundidad == "1")
+                    if (profundidad.size())
                     {
-                        query = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
-                        cout << query << endl;
-                        result = PQexec(cnn, query.c_str());
-                        if (!result)
-                        {
-                            cout << "Problem at executing Query." << endl;
-                        }
-                        PQnfields(result);
-                        cout<<"El resultado es: "<<PQgetvalue(result,0,0)<<endl;
+                        cout<<"El resultado es: "<<consulta_profundidad(dato,atoi(profundidad.c_str()));
+                        // query = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
+                        // cout << query << endl;
+                        // result = PQexec(cnn, query.c_str());
+                        // if (!result)
+                        // {
+                        //     cout << "Problem at executing Query." << endl;
+                        // }
+                        // PQnfields(result);
+                        // cout<<"El resultado es: "<<PQgetvalue(result,0,0)<<endl;
                     }
                     else
                     {
