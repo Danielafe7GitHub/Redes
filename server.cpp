@@ -82,6 +82,14 @@ vector<string> divide_mensaje_michi(string temporal)
     return paquetes;
 }
 
+string arToStr(char* a)
+{
+    string res;
+    cout<<"SUPERSIZE!"<<sizeof(a)/sizeof(*a)<<endl;
+    for(int i=0;i<=sizeof(a)/sizeof(*a);i++)res+=a[i];
+    return res;
+}
+
 void aceptClient(int ConnectFD) {
     char* buff;
     buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
@@ -95,15 +103,15 @@ void aceptClient(int ConnectFD) {
         if (n < 0)
             perror("ERROR reading from socket");
 
-        string aux1(buff);
-        ///ERROR BuFFER NO SE LIMPIA----> buff
+        // string aux1(buff);
+        string aux1=arToStr(buff);
         vector<string>palabras = divide_mensaje_michi(aux1);
         string palabra = palabras[1];
         ostringstream protocolo0;
         ostringstream protocolo;
         slaveServer = seleccionarSlave(palabra);
 
-
+        protocolo0.clear();
         protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
         tamanio = protocolo0.str().size();
         ostringstream to;
