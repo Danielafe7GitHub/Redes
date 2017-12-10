@@ -322,7 +322,12 @@ void readS()
 
 int main(int argc, char *argv[])
 {
+    if (!argv[1]) {
+        cout << "Please enter the server IP Address." << endl;
+        return 0;
+    }
     cout << "Client Services Started" << endl;
+
     char* SERVER_IP = argv[1];
     /*  Conectando bd*/
     cnn = PQsetdbLogin(host, port, NULL, NULL, dataBase, user, passwd);
