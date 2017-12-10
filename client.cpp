@@ -102,6 +102,7 @@ void writeS()
         cout<<"Buffer Junto: "<<to.str()<<endl;
         bufferJunto=to.str();
         n = write(SocketFD, bufferJunto.c_str(),bufferJunto.length());
+        bufferJunto.clear();
     }
 
 }
@@ -135,7 +136,7 @@ void readS()
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
 
-        cout<<aux<<" = "<<tamanio;
+        cout<<aux<<" = "<<tamanio<<endl;
         cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
         n = read(SocketFD,buff,tamanio);
@@ -251,13 +252,26 @@ void readS()
             {
                 string dato = palabras[1]; 
                 string profundidad = palabras[2]; 
-                string referencia;
+                cout<<"La profundidad es: "<<profundidad<<endl;
+                string query;
     
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad == "1")
                     {
-                        referencia = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
-                        cout<<"El query es: "<<referencia<<endl;
+                        query = "SELECT referencia FROM palabras  WHERE palabra='"+dato+"'LIMIT 2";
+                        cout << query << endl;
+                        result = PQexec(cnn, query.c_str());
+                        if (!result)
+                        {
+                            cout << "Problem at executing Query." << endl;
+                        }
+                        PQnfields(result);
+                        cout<<"El resultado es: "<<PQgetvalue(result,0,0)<<endl;
+                    }
+                    else
+                    {
+                        cout<<"No se conecto a la BD"<<endl;
+                        
                     }
                 }  
                 else

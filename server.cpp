@@ -96,6 +96,7 @@ void aceptClient(int ConnectFD) {
             perror("ERROR reading from socket");
 
         string aux1(buff);
+        ///ERROR BuFFER NO SE LIMPIA----> buff
         vector<string>palabras = divide_mensaje_michi(aux1);
         string palabra = palabras[1];
         ostringstream protocolo0;
