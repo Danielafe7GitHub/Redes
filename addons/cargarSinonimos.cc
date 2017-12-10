@@ -9,7 +9,7 @@ using namespace std;
 
 //COMPILAR: g++ cargarSinonimos.cc -o e -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
 
-#define RUTAARCHIVO "/home/asus/Documents/cleanSinonimo.txt"
+#define RUTAARCHIVO "/home/sergio/Redes/Trabajo Final/Data/cleanSinonimo.txt"
 
 PGconn *cnn = NULL;
 PGresult *result = NULL;
@@ -46,6 +46,7 @@ bool findInVector(vector<string>vector,string palabra)
 
 int main()
 {
+    cnn = PQsetdbLogin(host.c_str(),port.c_str(),NULL,NULL,dataBase.c_str(),user.c_str(),passwd.c_str());
     vector<string>lPalabras;
     vector<string>lSinonimos;
     ifstream toRead;
@@ -75,6 +76,19 @@ int main()
                     lSinonimos.push_back(sinonimos.substr(0,sinonimos.size()-2)+"}");
                     sinonimos="{\"";
                     flag=0;
+                    if (!flag && PQstatus(cnn) != CONNECTION_BAD) 
+                    {
+                        string instruccion;
+                        instruccion = "INSERT INTO sinonimos (palabra, sinonimos) VALUES('" + palabra + "','" + lSinonimos[0] + "')";
+                        result = PQexec(cnn,instruccion.c_str());
+                        lSinonimos.clear();
+                        lPalabras.clear();
+
+                        // Ahora nos toca liberar la memoria
+                        PQclear(result);
+                    }else{
+                        cout<<"Error de Coneccion"<<endl;
+                    }
                 }
                 sinonimos += linea.substr(pos+1,linea.size()-1) + "\",\"";          
                 lPalabras.push_back(palabra);
@@ -84,19 +98,15 @@ int main()
     lSinonimos.push_back(sinonimos.substr(0,sinonimos.size()-2)+"}");
     toRead.close();
 
-    cnn = PQsetdbLogin(host.c_str(),port.c_str(),NULL,NULL,dataBase.c_str(),user.c_str(),passwd.c_str());
 
-    if (PQstatus(cnn) != CONNECTION_BAD) 
+   if (PQstatus(cnn) != CONNECTION_BAD) 
     {
         string instruccion;
-        for(unsigned int i=0;i<lPalabras.size();i++)
-        {
-            instruccion = "INSERT INTO sinonimos (palabra, sinonimos) VALUES('" + lPalabras[i] + "','" + lSinonimos[i] + "')";
-            result = PQexec(cnn,instruccion.c_str());
+        instruccion = "INSERT INTO sinonimos (palabra, sinonimos) VALUES('" + palabra + "','" + lSinonimos[0] + "')";
+        result = PQexec(cnn,instruccion.c_str());
 
-            // Ahora nos toca liberar la memoria
-            PQclear(result);
-        }
+        // Ahora nos toca liberar la memoria
+        PQclear(result);
     }else{
         cout<<"Error de Coneccion"<<endl;
     }
