@@ -205,16 +205,16 @@ void readS()
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
 
-        cout<<aux<<" = "<<tamanio<<endl;
-        cout <<"tam"<<tamanio<<endl;
+        //cout<<aux<<" = "<<tamanio<<endl;
+        //cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
         n = read(SocketFD, buff, tamanio);
         string aux1(buff);
-        cout <<"aux1 "<< aux1<<endl;
+        //cout <<"aux1 "<< aux1<<endl;
         vector<string> separacion=divide_mensaje(aux1,'&');
         //string tabla=separacion[1];
         vector<string> protocolos=divide_mensaje(separacion[0],'$');
-         cout<<"protocolos"<<protocolos[0]<<endl;
+         //cout<<"protocolos"<<protocolos[0]<<endl;
         for(unsigned int i = 0; i < protocolos.size(); i++)
         {
             vector<string> palabras = divide_mensaje(protocolos[i],'#');
@@ -224,7 +224,7 @@ void readS()
             }
 
             string comando = palabras[0];
-            cout << "Command: "<< comando << endl;
+            //cout << "Command: "<< comando << endl;
             //mtx.lock();
             if (comando == "N")
             {
@@ -320,10 +320,10 @@ void readS()
             }
             else if(comando == "Q")
             {
-                cout<<"SUPER ENTRE A ESTE SITIO "<<endl;
+               // cout<<"SUPER ENTRE A ESTE SITIO "<<endl;
                 string dato = palabras[1]; 
                 string profundidad = palabras[2]; 
-                cout<<"La profundidad es: "<<profundidad<<endl;
+               // cout<<"La profundidad es: "<<profundidad<<endl;
                 string query;
     
                 if (PQstatus(cnn) != CONNECTION_BAD) {
@@ -331,7 +331,7 @@ void readS()
                     {
                         string resultado;
                         resultado = "RES"+format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
-                        cout << "El RESULTADO es: " << resultado << endl;
+                        cout << "La Rpta al query es: " << resultado << endl;
                         write(SocketFD, resultado.c_str(), resultado.size()); 
                     }
                     else
