@@ -57,6 +57,7 @@ string consulta(string palabra)
     }
     if(resultado.size()) 
         resultado+= "\n";
+    PQclear(result);
     //cout<<"resultado: "<<resultado<<endl;
     return resultado;
 }
@@ -79,6 +80,48 @@ string consulta_profundidad(string palabra,int profundidad)
     resultado_palabras.clear();
     return res;
 
+}
+
+vector<string> consultaSinonimo(string dato)
+{
+    string resultado;
+        string instruccion = "Select sinonimo From sinonimos where palabra = '"+dato+"' limit 1";
+        result = PQexec(cnn,instruccion.c_str());
+        int tuplas = PQntuples(result);
+        // int campos = PQnfields(result);
+        for (int i=0; i<tuplas; i++) {
+                string aux=PQgetvalue(result,i,0);
+                resultado += aux;
+                resultado += " ";
+        }
+        PQclear(result);
+    return sndivide_mensaje(resultado,',');
+
+}
+
+vector<string> consultaSinonimosProfundidad(string palabra,int profundidad)
+{
+    vector<string> result,aux;
+
+    result=consultaSinonimo(palabra);
+    int cont = 1;
+    int tam = result.size(); 
+    
+    for(int i=0;i<tam;i++)
+    {
+        if(i == tam)
+        {
+            tam = result.size();
+            cont++;
+        }
+        aux = consultaSinonimo(result[i]);
+        if(cont==profundidad)break;
+        result.insert(result.end(),aux.begin(),aux.end());        
+        aux.clear();
+    }
+
+    
+    return result;
 }
 
 
@@ -210,26 +253,26 @@ void readS()
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
 
-        cout<<aux<<" = "<<tamanio<<endl;
-        cout <<"tam"<<tamanio<<endl;
+        //cout<<aux<<" = "<<tamanio<<endl;
+        //cout <<"tam"<<tamanio<<endl;
         buff = new char[tamanio];
         n = read(SocketFD, buff, tamanio);
         string aux1(buff);
-        cout <<"aux1 "<< aux1<<endl;
+        //cout <<"aux1 "<< aux1<<endl;
         vector<string> separacion=divide_mensaje(aux1,'&');
-        string tabla=separacion[1];
+        //string tabla=separacion[1];
         vector<string> protocolos=divide_mensaje(separacion[0],'$');
-
+         //cout<<"protocolos"<<protocolos[0]<<endl;
         for(unsigned int i = 0; i < protocolos.size(); i++)
         {
             vector<string> palabras = divide_mensaje(protocolos[i],'#');
-
+            cout<<"palabras"<<palabras[0]<<endl;
             for (unsigned int i = 0; i < palabras.size(); ++i) {
                 cout << "ITEMS:" << i << palabras[i] << " - " << endl;
             }
 
             string comando = palabras[0];
-            cout << "Command: "<< comando << endl;
+            //cout << "Command: "<< comando << endl;
             //mtx.lock();
             if (comando == "N")
             {
@@ -280,7 +323,8 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
-            } else if (comando == "A") {
+            } 
+            else if (comando == "A") {
                 string name = palabras[1];
                 string value = palabras[2];
 
@@ -291,7 +335,25 @@ void readS()
                 }
 
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    string query = "UPDATE sinonimos SET sinonimo = '{"+palabras[2]+"}' WHERE palabra = '"+to_be_synonym+"';";
+                    string query =  "SELECT COUNT(palabra) FROM sinonimos  WHERE palabra='"+to_be_synonym+"'";
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                    PQnfields(result);
+                
+                    if (PQgetvalue(result,0,0)[0] == '0')
+                    {
+                        string query = "INSERT INTO sinonimos (palabra) VALUES ('"+to_be_synonym+"');";
+                        cout << query << endl;
+                        result = PQexec(cnn, query.c_str());
+                        if (!result)
+                        {
+                            cout << "Problem at executing Query." << endl;
+                        }
+                    }
+                    query = "UPDATE sinonimos SET sinonimo = '{"+value+"}' WHERE palabra = '"+to_be_synonym+"';";
                     cout << query << endl;
                     result = PQexec(cnn, query.c_str());
                     if (!result)
@@ -303,23 +365,22 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
-
             }
             else if(comando == "Q")
             {
-                cout<<"SUPER ENTRE A ESTE SITIO "<<endl;
+               // cout<<"SUPER ENTRE A ESTE SITIO "<<endl;
                 string dato = palabras[1]; 
                 string profundidad = palabras[2]; 
-                cout<<"La profundidad es: "<<profundidad<<endl;
+               // cout<<"La profundidad es: "<<profundidad<<endl;
                 string query;
     
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad.size())
                     {
-                        string resultado =
-                                format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
-                        cout << "El RESULTADO es: " << resultado << endl;
-                        write(SocketFD, resultado.c_str(), resultado.size());
+                        string resultado;
+                        resultado = "RES"+format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
+                        cout << "La Rpta al query es: " << resultado << endl;
+                        write(SocketFD, resultado.c_str(), resultado.size()); 
                     }
                     else
                     {
@@ -331,6 +392,41 @@ void readS()
                     cout<<"No se conecto a la BD"<<endl;
                 }                 
             }
+            //este comando solo sirve responder
+            else if(comando=="R"){
+                cout<<"rpta: "<<palabras[1]<<endl;
+            }
+            else if(comando == "P"){
+                cout<<"entre a hacer la consulta del gato andino peruano!!"<<endl;
+                vector< vector< string > > lasPalabras;
+                for(int i=1;i<palabras.size()-1;i++)
+                {
+                    lasPalabras.push_back( consultaSinonimosProfundidad(palabras[i],atoi(palabras[palabras.size()-1].c_str()) ) );
+                }
+                cout<<"las posibles combinaciones son:"<<endl;
+
+                for(int i=0;i<lasPalabras.size();i++)
+                {
+                    cout<<"PARA LA PALABRA: "<<palabras[i+1]<<": ";
+                    for(int j=0;j<lasPalabras[i].size();j++)
+                    {
+                        cout<<lasPalabras[i][j]<<"=>";
+                    }
+                    cout<<endl;
+                }
+
+
+             }
+             else if(comando == "S")
+             {
+                   cout<<"entre a hacer la consulta del gasdesfaeawefawefweafwaefewafato!!"<<endl;
+                 string resultados = getData();
+                 vector <string> res = divide_mensaje(resultados,'\n');
+                 cout<<"La ip es: "<<res[0]<<endl;
+                 cout<<"El puerto es: "<<res[1]<<endl;
+                 cout<<"el id del cliente es: "<<id_usuario[0]<<endl;
+
+             }
             else {
                 cout << "Option no valid." << endl;
             }

@@ -111,39 +111,44 @@ int seleccionarSlave(string palabra)
     tabla = palabra[0];
     if (palabra[0] >= 'a' and palabra[0]<='c')
     {
-        return 5;
-    }
-    else if (palabra[0] >= 'd' and palabra[0]<='f')
-    {
-        return 6;
-    }
-    else if (palabra[0] >= 'g' and palabra[0]<='i')
-    {
         return 7;
     }
-    else if (palabra[0] >= 'j' and palabra[0]<='l')
-    {
-        return 8;
-    }
-    else if (palabra[0] >= 'm' and palabra[0]<='o')
+    // else if (palabra == "")
+    // {
+    //     cout<<"hola"<<endl;
+    //    // return 4;
+    // }
+    else if (palabra[0] >= 'd' and palabra[0]<='f')
     {
         return 9;
     }
-    else if (palabra[0] >= 'p' and palabra[0]<='r')
-    {
-        return 10;
-    }
-    else if (palabra[0] >= 's' and palabra[0]<='u')
+    else if (palabra[0] >= 'g' and palabra[0]<='i')
     {
         return 11;
     }
+    else if (palabra[0] >= 'j' and palabra[0]<='l')
+    {
+        return 13;
+    }
+    else if (palabra[0] >= 'm' and palabra[0]<='o')
+    {
+        return 15;
+    }
+    else if (palabra[0] >= 'p' and palabra[0]<='r')
+    {
+        return 17;
+    }
+    else if (palabra[0] >= 's' and palabra[0]<='u')
+    {
+        return 19;
+    }
     else if (palabra[0] >= 'v' and palabra[0]<='x')
     {
-        return 12;
+        return 21;
     }
     else if (palabra[0] >= 'y' and palabra[0]<='z')
     {
-        return 13;
+        return 23;
     }
 
 }
@@ -163,46 +168,65 @@ vector<string> divide_mensaje_michi(string temporal)
 void aceptClient(int ConnectFD) {
     char* buff;
     buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
-
-    while(n = read(ConnectFD, buff, 3) > 0 && find(clients_id.begin(), clients_id.end(), ConnectFD) != clients_id.end()) {
+    bool flag = 0;
+    while(n = read(ConnectFD, buff, 3) > 0) {
         string aux = arToStr(buff, 3);
-        int tamanio = atoi(aux.c_str());
-        buff = new char[tamanio];
-        n = read(ConnectFD, buff, tamanio);
 
-        if (n < 0)
-            perror("ERROR reading from socket");
-
-        // string aux1(buff);
-        string aux1="";
-        aux1=arToStr(buff,tamanio);
-        vector<string>palabras = divide_mensaje_michi(aux1);
-        string palabra = palabras[1];
-        ostringstream protocolo0;
-        ostringstream protocolo;
-        slaveServer = seleccionarSlave(palabra);
-
-        protocolo0.clear();
-        protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
-        tamanio = protocolo0.str().size();
-        ostringstream to;
-
-        if(tamanio<=9)
-            to  << '0'<< '0'<<tamanio;
-        else if(tamanio<=99)
-            to  << '0'<<tamanio;
-        else
-            to  <<tamanio;
-        protocolo<<to.str()<<protocolo0.str();
-        string protocolo1=protocolo.str();
-        cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;
-        for(int i=1;i<clients_id.size();i++)
+        if(aux == "RES")
         {
-            cout<<"Enviando a Esclavo: "<<clients_id[i]<<" El msg:  "<<buffer<<endl;
-            n = write(slaveServer, protocolo1.c_str(), protocolo1.size());
-            if (n < 0) perror("ERROR writing to socket");
-        }
+            flag = 1;
+            buff = new char[3];
+            n = read(ConnectFD, buff, 3);   
+            aux = arToStr(buff,3);
+            int tamanio = atoi(aux.c_str());
+            buff = new char[tamanio];
+            n = read(ConnectFD, buff, tamanio);  
+            aux = arToStr(buff,tamanio);
+            aux = to_string(tamanio+3)+ "#R#" +aux;
+            cout<<"el supermensaje! "<<aux<<endl; 
+            write(cliente,aux.c_str(),aux.size());
 
+        }
+        else if (flag == 0)
+        {
+            int tamanio = atoi(aux.c_str());
+            buff = new char[tamanio];
+            n = read(ConnectFD, buff, tamanio);
+
+            if (n < 0)
+                perror("ERROR reading from socket");
+
+            // string aux1(buff);
+            string aux1="";
+            aux1=arToStr(buff,tamanio);
+            vector<string>palabras = divide_mensaje_michi(aux1);
+            string palabra = palabras[1];
+            ostringstream protocolo0;
+            ostringstream protocolo;
+            slaveServer = seleccionarSlave(palabra);
+
+            protocolo0.clear();
+            protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
+            tamanio = protocolo0.str().size();
+            ostringstream to;
+
+            if(tamanio<=9)
+                to  << '0'<< '0'<<tamanio;
+            else if(tamanio<=99)
+                to  << '0'<<tamanio;
+            else
+                to  <<tamanio;
+            protocolo<<to.str()<<protocolo0.str();
+            string protocolo1=protocolo.str();
+            cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;
+            for(int i=1;i<clients_id.size();i++)
+            {
+                cout<<"Enviando a Esclavo: "<<clients_id[i]<<" El msg:  "<<buffer<<endl;
+                n = write(slaveServer, protocolo1.c_str(), protocolo1.size());
+                if (n < 0) perror("ERROR writing to socket");
+            }
+
+        //}
         buffer.clear();
     }
 
@@ -214,6 +238,7 @@ void aceptClient(int ConnectFD) {
         close(ConnectFD); //Cierra el Socket ( Socket : puente para que 2 computadoras se comuniquen remota o localmente) CIERRA la comunicación
         pthread_exit(NULL);
     }
+}
 }
 
 

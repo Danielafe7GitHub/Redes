@@ -9,7 +9,7 @@ using namespace std;
 
 //COMPILAR: g++ cargarSinonimos.cc -o e -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
 
-#define RUTAARCHIVO "/home/asus/Documents/wordSim.txt"
+#define RUTAARCHIVO "/home/sergio/Redes/Trabajo Final/Data/wordSim.txt"
 
 PGconn *cnn = NULL;
 PGresult *result = NULL;
