@@ -347,7 +347,7 @@ void readS()
             }
             //este comando solo sirve responder
             else if(comando=="R"){
-                cout<<"estoy aqui!!!!"<<endl;
+                cout<<"rpta: "<<palabras[1]<<endl;
             }
             else if(comando == "P"){
                 cout<<"entre a hacer la consulta del gato!!"<<endl;
