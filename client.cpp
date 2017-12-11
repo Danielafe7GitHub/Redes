@@ -275,7 +275,8 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
-            } else if (comando == "A") {
+            } 
+            else if (comando == "A") {
                 string name = palabras[1];
                 string value = palabras[2];
 
@@ -286,7 +287,25 @@ void readS()
                 }
 
                 if (PQstatus(cnn) != CONNECTION_BAD) {
-                    string query = "UPDATE sinonimos SET sinonimo = '{"+palabras[2]+"}' WHERE palabra = '"+to_be_synonym+"';";
+                    string query =  "SELECT COUNT(palabra) FROM sinonimos  WHERE palabra='"+to_be_synonym+"'";
+                    result = PQexec(cnn, query.c_str());
+                    if (!result)
+                    {
+                        cout << "Problem at executing Query." << endl;
+                    }
+                    PQnfields(result);
+                
+                    if (PQgetvalue(result,0,0)[0] == '0')
+                    {
+                        string query = "INSERT INTO sinonimos (palabra) VALUES ('"+to_be_synonym+"');";
+                        cout << query << endl;
+                        result = PQexec(cnn, query.c_str());
+                        if (!result)
+                        {
+                            cout << "Problem at executing Query." << endl;
+                        }
+                    }
+                    query = "UPDATE sinonimos SET sinonimo = '{"+value+"}' WHERE palabra = '"+to_be_synonym+"';";
                     cout << query << endl;
                     result = PQexec(cnn, query.c_str());
                     if (!result)
@@ -298,7 +317,6 @@ void readS()
                 {
                     cout<<"No se conecto a la BD"<<endl;
                 }
-
             }
             else if(comando == "Q")
             {
