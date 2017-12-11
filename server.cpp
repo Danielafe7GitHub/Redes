@@ -207,6 +207,7 @@ void aceptClient(int ConnectFD) {
         pthread_exit(NULL);
     }
 }
+}
 
 
 int main()
