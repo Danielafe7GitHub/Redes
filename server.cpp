@@ -135,26 +135,28 @@ vector<string> divide_mensaje_michi(string temporal)
 void aceptClient(int ConnectFD) {
     char* buff;
     buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
-
+    bool flag = 0;
     while(n = read(ConnectFD, buff, 3) > 0) {
 
         string aux = arToStr(buff, 3);
 
-        // if(aux == "RES")
-        // {
-        //     buff = new char[3];
-        //     n = read(ConnectFD, buff, 3);   
-        //     aux = arToStr(buff,3);
-        //     int tamanio = atoi(aux.c_str());
-        //     buff = new char[tamanio];
-        //     n = read(ConnectFD, buff, tamanio);  
-        //     aux = arToStr(buff,tamanio);
-        //     aux = to_string(tamanio+3)+ "#R#" +aux;
-        //     cout<<"el supermensaje! "<<aux<<endl; 
-        //     write(cliente,aux.c_str(),aux.size());
+        if(aux == "RES")
+        {
+            flag = 1;
+            buff = new char[3];
+            n = read(ConnectFD, buff, 3);   
+            aux = arToStr(buff,3);
+            int tamanio = atoi(aux.c_str());
+            buff = new char[tamanio];
+            n = read(ConnectFD, buff, tamanio);  
+            aux = arToStr(buff,tamanio);
+            aux = to_string(tamanio+3)+ "#R#" +aux;
+            cout<<"el supermensaje! "<<aux<<endl; 
+            write(cliente,aux.c_str(),aux.size());
 
-        // }
-        //else{
+        }
+        else if (flag == 0)
+        {
             int tamanio = atoi(aux.c_str());
             buff = new char[tamanio];
             n = read(ConnectFD, buff, tamanio);
