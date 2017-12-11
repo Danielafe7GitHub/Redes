@@ -29,3 +29,39 @@ string format_message_plus_size(string message) {
     result = to.str() + message;
     return result;
 }
+
+
+
+string deleteInperfections(string inperfect)
+{
+    string result;
+    for(unsigned int i=0;i<inperfect.size();i++)
+    {
+        if(inperfect[i]!='\"' && inperfect[i]!='{' && inperfect[i]!='}')result+=inperfect[i];
+    }
+    return result;
+}
+
+
+///quitando inperfecciones en los strings
+vector<string> sndivide_mensaje(string temporal, char separador)
+{
+    string token;
+    vector<string> paquetes;
+    istringstream iss(temporal);
+    while(getline(iss, token,separador))
+    {
+        if(token.size()>0)
+            paquetes.push_back(deleteInperfections(token));
+    }
+    return paquetes;
+}
+
+void printVector(vector<string> a)
+{
+    for(unsigned int i=0;i<a.size();i++)
+    {
+        cout<<a[i]<<", ";
+    }
+    cout<<endl;
+}

@@ -50,6 +50,7 @@ string consulta(string palabra)
     }
     if(resultado.size()) 
         resultado+= "\n";
+    PQclear(result);
     //cout<<"resultado: "<<resultado<<endl;
     return resultado;
 }
@@ -72,6 +73,48 @@ string consulta_profundidad(string palabra,int profundidad)
     resultado_palabras.clear();
     return res;
 
+}
+
+vector<string> consultaSinonimo(string dato)
+{
+    string resultado;
+        string instruccion = "Select sinonimos From sinonimos where palabra = '"+dato+"' limit 1";
+        result = PQexec(cnn,instruccion.c_str());
+        int tuplas = PQntuples(result);
+        // int campos = PQnfields(result);
+        for (int i=0; i<tuplas; i++) {
+                string aux=PQgetvalue(result,i,0);
+                resultado += aux;
+                resultado += " ";
+        }
+        PQclear(result);
+    return sndivide_mensaje(resultado,',');
+
+}
+
+vector<string> consultaSinonimosProfundidad(string palabra,int profundidad)
+{
+    vector<string> result,aux;
+
+    result=consultaSinonimo(palabra);
+    int cont = 1;
+    int tam = result.size(); 
+    
+    for(int i=0;i<tam;i++)
+    {
+        if(i == tam)
+        {
+            tam = result.size();
+            cont++;
+        }
+        aux = consultaSinonimo(result[i]);
+        if(cont==profundidad)break;
+        result.insert(result.end(),aux.begin(),aux.end());        
+        aux.clear();
+    }
+
+    
+    return result;
 }
 
 
@@ -277,10 +320,9 @@ void readS()
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad.size())
                     {
-                        string resultado =
-                                format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
+                        string resultado = format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
                         cout << "El RESULTADO es: " << resultado << endl;
-                        write(SocketFD, resultado.c_str(), resultado.size());
+                        write(SocketFD, resultado.c_str(), resultado.size());   ///it's not work!
                     }
                     else
                     {
@@ -293,6 +335,9 @@ void readS()
                     cout<<"No se conecto a la BD"<<endl;
                 }                 
             }
+            else if(comando == "P"){
+                cout<<"entre a hacer la consulta del gato!!"<<endl;
+             }
             else {
                 cout << "Option no valid." << endl;
             }
