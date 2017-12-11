@@ -9,7 +9,7 @@ using namespace std;
 
 //COMPILAR: g++ cargarSinonimos.cc -o e -Wall -I/usr/local/pgsql/include -L/usr/local/pgsql/lib -lpq
 
-#define RUTAARCHIVO "/home/sergio/Redes/Trabajo Final/Data/cleanSinonimo.txt"
+#define RUTAARCHIVO "/home/sergio/Redes/Trabajo Final/Data/wordSim.txt"
 
 PGconn *cnn = NULL;
 PGresult *result = NULL;
@@ -79,7 +79,7 @@ int main()
                     if (!flag && PQstatus(cnn) != CONNECTION_BAD) 
                     {
                         string instruccion;
-                        instruccion = "INSERT INTO sinonimos (palabra, sinonimos) VALUES('" + palabra + "','" + lSinonimos[0] + "')";
+                        instruccion = "INSERT INTO sinonimos (palabra, sinonimo) VALUES('" + palabra + "','" + lSinonimos[0] + "')";
                         result = PQexec(cnn,instruccion.c_str());
                         lSinonimos.clear();
                         lPalabras.clear();

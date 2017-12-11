@@ -1,11 +1,12 @@
 #include <iostream>
+#include <stdio.h>  
 #include <thread>         // std::thread, std::this_thread::sleep_for
 #include <vector>
 #include <cstring>
 #include <mutex>
 
 // ENVIRONMENT CONFIGURATIONS
-#define APP_PORT 3123
+#define APP_PORT 3126
 
 using namespace std;
 
@@ -21,11 +22,11 @@ string format_message_plus_size(string message) {
     int TamTot = message.size() + 1;
 
     if (TamTot <= 9)
-        to  << '0'<< '0'<<TamTot << '#' << message;
+        to  << '0'<< '0'<<TamTot << message;
     else if(TamTot<=99)
-        to  << '0'<<TamTot << '#' << message;
+        to  << '0'<<TamTot << message;
     else
-        to  <<TamTot << '#' << message;
+        to  <<TamTot << message;
     result = to.str() + message;
     return result;
 }
@@ -90,6 +91,6 @@ string getData()
     string res;
     res=GetStdoutFromCommand("hostname -I | awk '{print $1}'");
     res+=to_string(APP_PORT);
-    cout<<res<<endl;
+    res += "\n";
     return res;
 }

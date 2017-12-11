@@ -80,6 +80,11 @@ int seleccionarSlave(string palabra)
     {
         return 5;
     }
+    // else if (palabra == "")
+    // {
+    //     cout<<"hola"<<endl;
+    //    // return 4;
+    // }
     else if (palabra[0] >= 'd' and palabra[0]<='f')
     {
         return 6;
@@ -132,44 +137,62 @@ void aceptClient(int ConnectFD) {
     buff = new char[3]; //El cliente le envia 7, pero solo decide leer el primero (N)
 
     while(n = read(ConnectFD, buff, 3) > 0) {
+
         string aux = arToStr(buff, 3);
-        int tamanio = atoi(aux.c_str());
-        buff = new char[tamanio];
-        n = read(ConnectFD, buff, tamanio);
 
-        if (n < 0)
-            perror("ERROR reading from socket");
-
-        // string aux1(buff);
-        string aux1="";
-        aux1=arToStr(buff,tamanio);
-        vector<string>palabras = divide_mensaje_michi(aux1);
-        string palabra = palabras[1];
-        ostringstream protocolo0;
-        ostringstream protocolo;
-        slaveServer = seleccionarSlave(palabra);
-
-        protocolo0.clear();
-        protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
-        tamanio = protocolo0.str().size();
-        ostringstream to;
-
-        if(tamanio<=9)
-            to  << '0'<< '0'<<tamanio;
-        else if(tamanio<=99)
-            to  << '0'<<tamanio;
-        else
-            to  <<tamanio;
-        protocolo<<to.str()<<protocolo0.str();
-        string protocolo1=protocolo.str();
-        cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;
-        for(int i=1;i<clients_id.size();i++)
+        if(aux == "RES")
         {
-            cout<<"Enviando a Esclavo: "<<clients_id[i]<<" El msg:  "<<buffer<<endl;
-            n = write(slaveServer, protocolo1.c_str(), protocolo1.size());
-            if (n < 0) perror("ERROR writing to socket");
-        }
+            buff = new char[3];
+            n = read(ConnectFD, buff, 3);   
+            aux = arToStr(buff,3);
+            int tamanio = atoi(aux.c_str());
+            buff = new char[tamanio];
+            n = read(ConnectFD, buff, tamanio);  
+            aux = arToStr(buff,tamanio);
+            aux = to_string(tamanio+3)+ "#R#" +aux;
+            cout<<"el supermensaje! "<<aux<<endl; 
+            write(cliente,aux.c_str(),aux.size());
 
+        }
+        else{
+            int tamanio = atoi(aux.c_str());
+            buff = new char[tamanio];
+            n = read(ConnectFD, buff, tamanio);
+
+            if (n < 0)
+                perror("ERROR reading from socket");
+
+            // string aux1(buff);
+            string aux1="";
+            aux1=arToStr(buff,tamanio);
+            vector<string>palabras = divide_mensaje_michi(aux1);
+            string palabra = palabras[1];
+            ostringstream protocolo0;
+            ostringstream protocolo;
+            slaveServer = seleccionarSlave(palabra);
+
+            protocolo0.clear();
+            protocolo0<<aux1<<'&'<<"Tabla_"<<tabla;
+            tamanio = protocolo0.str().size();
+            ostringstream to;
+
+            if(tamanio<=9)
+                to  << '0'<< '0'<<tamanio;
+            else if(tamanio<=99)
+                to  << '0'<<tamanio;
+            else
+                to  <<tamanio;
+            protocolo<<to.str()<<protocolo0.str();
+            string protocolo1=protocolo.str();
+            cout<<"Enviando a Slave Numero "<<slaveServer<<" a la Tabla "<<tabla<<" El msg:  "<<protocolo1<<endl;
+            for(int i=1;i<clients_id.size();i++)
+            {
+                cout<<"Enviando a Esclavo: "<<clients_id[i]<<" El msg:  "<<buffer<<endl;
+                n = write(slaveServer, protocolo1.c_str(), protocolo1.size());
+                if (n < 0) perror("ERROR writing to socket");
+            }
+
+        }
         buffer.clear();
     }
 

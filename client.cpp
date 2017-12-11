@@ -202,15 +202,6 @@ void readS()
     while((n = read(SocketFD, buff, 3)) > 0)
     {
         string aux(buff);
-
-//        if (aux == ACK_MESSAGE) {
-//            cout << "sending to server" << "'"<< ACK_MESSAGE.c_str() << "'"<< endl;
-//            if ((n = write(SocketFD, ACK_MESSAGE.c_str(), 3)) <= 0) {
-//                perror("Error at send ACK to server.");
-//            }
-//            continue;
-//        }
-
         string to_be_synonym;
         int tamanio = atoi(aux.c_str());
 
@@ -221,13 +212,13 @@ void readS()
         string aux1(buff);
         cout <<"aux1 "<< aux1<<endl;
         vector<string> separacion=divide_mensaje(aux1,'&');
-        string tabla=separacion[1];
+        //string tabla=separacion[1];
         vector<string> protocolos=divide_mensaje(separacion[0],'$');
-
+         cout<<"protocolos"<<protocolos[0]<<endl;
         for(unsigned int i = 0; i < protocolos.size(); i++)
         {
             vector<string> palabras = divide_mensaje(protocolos[i],'#');
-
+            cout<<"palabras"<<palabras[0]<<endl;
             for (unsigned int i = 0; i < palabras.size(); ++i) {
                 cout << "ITEMS:" << i << palabras[i] << " - " << endl;
             }
@@ -320,9 +311,10 @@ void readS()
                 if (PQstatus(cnn) != CONNECTION_BAD) {
                     if (profundidad.size())
                     {
-                        string resultado = format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
+                        string resultado;
+                        resultado = "RES"+format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
                         cout << "El RESULTADO es: " << resultado << endl;
-                        write(SocketFD, resultado.c_str(), resultado.size());   ///it's not work!
+                        write(SocketFD, resultado.c_str(), resultado.size()); 
                     }
                     else
                     {
@@ -335,8 +327,22 @@ void readS()
                     cout<<"No se conecto a la BD"<<endl;
                 }                 
             }
+            //este comando solo sirve responder
+            else if(comando=="R"){
+                cout<<"estoy aqui!!!!"<<endl;
+            }
             else if(comando == "P"){
                 cout<<"entre a hacer la consulta del gato!!"<<endl;
+             }
+             else if(comando == "S")
+             {
+                   cout<<"entre a hacer la consulta del gasdesfaeawefawefweafwaefewafato!!"<<endl;
+                 string resultados = getData();
+                 vector <string> res = divide_mensaje(resultados,'\n');
+                 cout<<"La ip es: "<<res[0]<<endl;
+                 cout<<"El puerto es: "<<res[1]<<endl;
+                 cout<<"el id del cliente es: "<<id_usuario[0]<<endl;
+
              }
             else {
                 cout << "Option no valid." << endl;
