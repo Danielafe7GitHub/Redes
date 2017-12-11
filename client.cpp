@@ -78,7 +78,7 @@ string consulta_profundidad(string palabra,int profundidad)
 vector<string> consultaSinonimo(string dato)
 {
     string resultado;
-        string instruccion = "Select sinonimos From sinonimos where palabra = '"+dato+"' limit 1";
+        string instruccion = "Select sinonimo From sinonimos where palabra = '"+dato+"' limit 1";
         result = PQexec(cnn,instruccion.c_str());
         int tuplas = PQntuples(result);
         // int campos = PQnfields(result);
@@ -332,7 +332,7 @@ void readS()
                         string resultado;
                         resultado = "RES"+format_message_plus_size(consulta_profundidad(dato,atoi(profundidad.c_str())));
                         cout << "El RESULTADO es: " << resultado << endl;
-                        write(SocketFD, resultado.c_str(), resultado.size()); 
+                     //   write(SocketFD, resultado.c_str(), resultado.size()); 
                     }
                     else
                     {
@@ -346,11 +346,29 @@ void readS()
                 }                 
             }
             //este comando solo sirve responder
-            else if(comando=="R"){
+           /* else if(comando=="R"){
                 cout<<"estoy aqui!!!!"<<endl;
-            }
+            }*/
             else if(comando == "P"){
-                cout<<"entre a hacer la consulta del gato!!"<<endl;
+                cout<<"entre a hacer la consulta del gato andino peruano!!"<<endl;
+                vector< vector< string > > lasPalabras;
+                for(int i=1;i<palabras.size()-1;i++)
+                {
+                    lasPalabras.push_back( consultaSinonimosProfundidad(palabras[i],atoi(palabras[palabras.size()-1].c_str()) ) );
+                }
+                cout<<"las posibles combinaciones son:"<<endl;
+
+                for(int i=0;i<lasPalabras.size();i++)
+                {
+                    cout<<"PARA LA PALABRA: "<<palabras[i+1]<<": ";
+                    for(int j=0;j<lasPalabras[i].size();j++)
+                    {
+                        cout<<lasPalabras[i][j]<<"=>";
+                    }
+                    cout<<endl;
+                }
+
+
              }
              else if(comando == "S")
              {

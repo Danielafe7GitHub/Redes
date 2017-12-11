@@ -140,21 +140,21 @@ void aceptClient(int ConnectFD) {
 
         string aux = arToStr(buff, 3);
 
-        if(aux == "RES")
-        {
-            buff = new char[3];
-            n = read(ConnectFD, buff, 3);   
-            aux = arToStr(buff,3);
-            int tamanio = atoi(aux.c_str());
-            buff = new char[tamanio];
-            n = read(ConnectFD, buff, tamanio);  
-            aux = arToStr(buff,tamanio);
-            aux = to_string(tamanio+3)+ "#R#" +aux;
-            cout<<"el supermensaje! "<<aux<<endl; 
-            write(cliente,aux.c_str(),aux.size());
+        // if(aux == "RES")
+        // {
+        //     buff = new char[3];
+        //     n = read(ConnectFD, buff, 3);   
+        //     aux = arToStr(buff,3);
+        //     int tamanio = atoi(aux.c_str());
+        //     buff = new char[tamanio];
+        //     n = read(ConnectFD, buff, tamanio);  
+        //     aux = arToStr(buff,tamanio);
+        //     aux = to_string(tamanio+3)+ "#R#" +aux;
+        //     cout<<"el supermensaje! "<<aux<<endl; 
+        //     write(cliente,aux.c_str(),aux.size());
 
-        }
-        else{
+        // }
+        //else{
             int tamanio = atoi(aux.c_str());
             buff = new char[tamanio];
             n = read(ConnectFD, buff, tamanio);
@@ -192,7 +192,7 @@ void aceptClient(int ConnectFD) {
                 if (n < 0) perror("ERROR writing to socket");
             }
 
-        }
+        //}
         buffer.clear();
     }
 
