@@ -113,14 +113,22 @@ int seleccionarSlave(string palabra)
     {
         return 7;
     }
-    // else if (palabra == "")
-    // {
-    //     cout<<"hola"<<endl;
-    //    // return 4;
-    // }
     else if (palabra[0] >= 'd' and palabra[0]<='f')
     {
-        return 9;
+        flag = 0;
+        for (int i =0;i<iD.size();i++)
+        {
+            if(iD[i] == 9) 
+            {
+                flag = 1; // Sifnifica que esta
+                break;
+            }
+                
+        }
+        if(flag == 1)
+                return 9;
+        else
+            return 7;
     }
     else if (palabra[0] >= 'g' and palabra[0]<='i')
     {
