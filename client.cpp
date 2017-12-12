@@ -26,10 +26,17 @@ char passwd[] = "redes";
 mutex mtx;
 
 struct sockaddr_in stSockAddr;
+struct sockaddr_in stSockAddrKA;
 int Res;
+int ResKA;
 int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+int SocketKA = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 int n;
-char id_usuario[1];
+char id_usuario[2];
+char id_usuario_ka[2];
+
+bool ALIVE_RW = true;
+bool ALIVE_P = true;
 
 
 vector<string> resultado_palabras;
@@ -155,10 +162,42 @@ vector<string> divide_mensaje(string temporal, char separador)
     return paquetes;
 }
 
+void keepAlive() {
+    string buffer;
+    char *buff;
+    buff = new char[3];
+
+    while ((n = read(SocketKA, buff, 3)) > 0) {
+        string aux(buff);
+
+        if (aux == ACK_MESSAGE) {
+            if ((n = write(SocketKA, ACK_MESSAGE.c_str(), 3)) <= 0) {
+                perror("Error at send ACK to server.");
+                ALIVE_RW = false;
+                shutdown(SocketKA, SHUT_RDWR);
+                close(SocketKA);
+                pthread_exit(nullptr);
+            }
+            continue;
+        }
+    }
+
+    if (n <= 0)
+    {
+        cout << "Client unreachable keepalive. It will be disconnected!"<<endl;
+        shutdown(SocketFD, SHUT_RDWR);
+        shutdown(SocketKA, SHUT_RDWR);
+        close(SocketFD);
+        close(SocketKA);
+        pthread_exit(nullptr);
+    }
+}
+
 void writeS()
 {
-    cout<<"Mi id es: "<<id_usuario[0]<<endl;
-    while(true)
+    cout<<"Mi id es: "<<id_usuario<<endl;
+    cout<<"Mi id KA es: "<<id_usuario_ka<<endl;
+    do
     {
         string temporal;
         cout<<"Ingrese su consulta"<<endl;
@@ -189,6 +228,15 @@ void writeS()
         bufferJunto=to.str();
         n = write(SocketFD, bufferJunto.c_str(),bufferJunto.length());
         bufferJunto.clear();
+    } while (n > 0);
+
+    if (n <= 0) {
+        cout << "Client unreachable while writting. It will be disconnected!"<<endl;
+        shutdown(SocketFD, SHUT_RDWR);
+        shutdown(SocketKA, SHUT_RDWR);
+        close(SocketFD);
+        close(SocketKA);
+        pthread_exit(nullptr);
     }
 
 }
@@ -337,7 +385,6 @@ void readS()
                     else
                     {
                         cout<<"No se conecto a la BD"<<endl;
-                        
                     }
                 }  
                 else
@@ -390,15 +437,23 @@ void readS()
                  vector <string> res = divide_mensaje(resultados,'\n');
                  cout<<"La ip es: "<<res[0]<<endl;
                  cout<<"El puerto es: "<<res[1]<<endl;
-                 cout<<"el id del cliente es: "<<id_usuario[0]<<endl;
+                 cout<<"el id del cliente es: "<<id_usuario<<endl;
 
              }
             else {
                 cout << "Option no valid." << endl;
             }
-            //mtx.unlock();
         }
-        
+    }
+
+    if (n <= 0)
+    {
+        cout << "Client unreachable while reading. It will be disconnected!"<<endl;
+        shutdown(SocketFD, SHUT_RDWR);
+        shutdown(SocketKA, SHUT_RDWR);
+        close(SocketFD);
+        close(SocketKA);
+        pthread_exit(nullptr);
     }
 }
 
@@ -415,18 +470,23 @@ int main(int argc, char *argv[])
     /*  Conectando bd*/
     cnn = PQsetdbLogin(host, port, NULL, NULL, dataBase, user, passwd);
 
-    if (-1 == SocketFD)
+    if(-1 == SocketFD || SocketKA == -1)
     {
-        perror("cannot create socket");
+        perror("can not create socket");
         exit(EXIT_FAILURE);
     }
 
     memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
+    memset(&stSockAddrKA, 0, sizeof(struct sockaddr_in));
 
     stSockAddr.sin_family = AF_INET;
     stSockAddr.sin_port = htons(APP_PORT);
 
+    stSockAddrKA.sin_family = AF_INET;
+    stSockAddrKA.sin_port = htons(KA_PORT);
+
     Res = inet_pton(AF_INET, SERVER_IP, &stSockAddr.sin_addr);
+    ResKA = inet_pton(AF_INET, SERVER_IP, &stSockAddrKA.sin_addr);
 
     if (0 > Res)
     {
@@ -441,6 +501,19 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (ResKA < 0)
+    {
+        perror("ERROR: First parameter is not a valid address family");
+        close(SocketKA);
+        exit(EXIT_FAILURE);
+    }
+    else if (ResKA == 0)
+    {
+        perror("Char string (second parameter does not contain valid ipaddress");
+        close(SocketKA);
+        exit(EXIT_FAILURE);
+    }
+
     if (-1 == connect(SocketFD, (const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)))
     {
         perror("Connection failed!");
@@ -448,16 +521,27 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    read(SocketFD,id_usuario,1); //el cliente almacena en  id_usuario el id enviado por el servidor
+    if (-1 == connect(SocketKA, (const struct sockaddr *)&stSockAddrKA, sizeof(struct sockaddr_in)))
+    {
+        perror("Connection failed!");
+        close(SocketFD);
+        exit(EXIT_FAILURE);
+    }
 
+    read(SocketFD, id_usuario, 2); //el cliente almacena en  id_usuario el id enviado por el servidor
+    read(SocketKA, id_usuario_ka, 2);
 
     std::thread t1 (readS);
     std::thread t2 (writeS);
+    std::thread t3 (keepAlive);
     t1.join();
     t2.join();
+    t3.join();
 
     PQfinish(cnn);
     shutdown(SocketFD, SHUT_RDWR);
+    shutdown(SocketKA, SHUT_RDWR);
     close(SocketFD);
+    close(SocketKA);
     return 0;
 }

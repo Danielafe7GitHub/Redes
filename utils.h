@@ -6,7 +6,8 @@
 #include <mutex>
 
 // ENVIRONMENT CONFIGURATIONS
-#define APP_PORT 3125
+#define APP_PORT 3112
+#define KA_PORT 4521
 
 using namespace std;
 
