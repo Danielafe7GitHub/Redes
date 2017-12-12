@@ -218,13 +218,13 @@ void readS()
         for(unsigned int i = 0; i < protocolos.size(); i++)
         {
             vector<string> palabras = divide_mensaje(protocolos[i],'#');
-            cout<<"palabras"<<palabras[0]<<endl;
+            /*cout<<"palabras"<<palabras[0]<<endl;
             for (unsigned int i = 0; i < palabras.size(); ++i) {
                 cout << "ITEMS:" << i << palabras[i] << " - " << endl;
-            }
+            }*/
 
             string comando = palabras[0];
-            //cout << "Command: "<< comando << endl;
+            // cout << "Command: "<< comando << endl;
             //mtx.lock();
             if (comando == "N")
             {
@@ -347,7 +347,10 @@ void readS()
             }
             //este comando solo sirve responder
             else if(comando=="R"){
-                cout<<"rpta: "<<palabras[1]<<endl;
+                cout<<"respondiendo la querry: "<<palabras[1]<<endl;
+            }
+            else if(comando=="W"){
+                cout<<"combinaciones de sinonimos: "<<palabras[1]<<endl;
             }
             else if(comando == "P"){
                 cout<<"entre a hacer la consulta del gato andino peruano!!"<<endl;
@@ -366,6 +369,16 @@ void readS()
                         cout<<lasPalabras[i][j]<<"=>";
                     }
                     cout<<endl;
+                }
+
+                string a;
+                for(int i=0;i<lasPalabras.size();i++)
+                {
+                    // cout<<"PARA LA PALABRA: "<<palabras[i+1]<<": ";
+                    a=vectorToString(lasPalabras[i]);
+                    a="PES"+format_message_plus_size(a);
+                    write(SocketFD,a.c_str(),a.size());
+                    // cout<<endl;
                 }
 
 

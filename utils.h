@@ -14,6 +14,15 @@ using namespace std;
 string ACK_MESSAGE = "ACK";
 string LIMIT_QUERY = "10";
 
+string vectorToString(vector<string> a)
+{
+    string b;
+    for(int i=0;i<a.size();i++)
+    {
+        b+=a[i]+"=";
+    }
+    return b;
+}
 
 string format_message_plus_size(string message) {
     ostringstream to;
