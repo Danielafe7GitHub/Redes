@@ -32,8 +32,8 @@ int ResKA;
 int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 int SocketKA = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 int n;
-char id_usuario[1];
-char id_usuario_ka[1];
+char id_usuario[2];
+char id_usuario_ka[2];
 
 bool ALIVE_RW = true;
 bool ALIVE_P = true;
@@ -195,8 +195,8 @@ void keepAlive() {
 
 void writeS()
 {
-    cout<<"Mi id es: "<<id_usuario[0]<<endl;
-    cout<<"Mi id KA es: "<<id_usuario_ka[0]<<endl;
+    cout<<"Mi id es: "<<id_usuario<<endl;
+    cout<<"Mi id KA es: "<<id_usuario_ka<<endl;
     do
     {
         string temporal;
@@ -424,7 +424,7 @@ void readS()
                  vector <string> res = divide_mensaje(resultados,'\n');
                  cout<<"La ip es: "<<res[0]<<endl;
                  cout<<"El puerto es: "<<res[1]<<endl;
-                 cout<<"el id del cliente es: "<<id_usuario[0]<<endl;
+                 cout<<"el id del cliente es: "<<id_usuario<<endl;
 
              }
             else {
@@ -515,8 +515,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    read(SocketFD, id_usuario, 1); //el cliente almacena en  id_usuario el id enviado por el servidor
-    read(SocketKA, id_usuario_ka, 1);
+    read(SocketFD, id_usuario, 2); //el cliente almacena en  id_usuario el id enviado por el servidor
+    read(SocketKA, id_usuario_ka, 2);
 
     std::thread t1 (readS);
     std::thread t2 (writeS);

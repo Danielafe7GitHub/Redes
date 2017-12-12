@@ -328,13 +328,26 @@ int main()
             cliente = ConnectFD;
         clients_id.push_back(ConnectFD);
 
-        char id[1];
-        sprintf(id, "%d", ConnectFD); //De entero a char
-        write(ConnectFD, id, 1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
 
-        char id_ka[1];
-        sprintf(id_ka, "%d", KAConnectFD);
-        write(KAConnectFD, id_ka, 1);
+        if (ConnectFD >= 10) {
+            char id[2];
+            sprintf(id, "%d", ConnectFD); //De entero a char
+            write(ConnectFD, id, 2);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
+        } else {
+            char id[1];
+            sprintf(id, "%d", ConnectFD); //De entero a char
+            write(ConnectFD, id, 1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
+        }
+
+        if (KAConnectFD >= 10) {
+            char id[2];
+            sprintf(id, "%d", KAConnectFD); //De entero a char
+            write(KAConnectFD, id, 2);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
+        } else {
+            char id[1];
+            sprintf(id, "%d", KAConnectFD); //De entero a char
+            write(KAConnectFD, id, 1);      //Luego que el cliente se conecta, el servidor halla su id, y se lo envía.
+        }
 
         thread (aceptClient, ConnectFD).detach();
         thread (keepAlive, KAConnectFD, ConnectFD).detach();
