@@ -115,10 +115,10 @@ int seleccionarSlave(string palabra)
     }
     else if (palabra[0] >= 'd' and palabra[0]<='f')
     {
-        flag = 0;
-        for (int i =0;i<iD.size();i++)
+        int flag = 0;
+        for (int i =0;i<clients_id.size();i++)
         {
-            if(iD[i] == 9) 
+            if(clients_id[i] == 9)
             {
                 flag = 1; // Sifnifica que esta
                 break;
